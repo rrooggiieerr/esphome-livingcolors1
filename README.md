@@ -7,7 +7,7 @@ To set up this LivingColors component you first need to place a top-level SPI an
 - ESP8266 or ESP32
 - CC2500 transceiver
 
-These need to bi wired as described on the [ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500)
+These need to be wired as described on the [ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500)
 
 ![](wiring3.jpg)
 
