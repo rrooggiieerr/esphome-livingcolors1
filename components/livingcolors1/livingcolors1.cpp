@@ -48,14 +48,7 @@ void LivingColors1::queue_light(uint64_t address, Command command, uint8_t hue,
 		data[13] = saturation;
 		data[14] = value;
 
-		cc2500::Command cc2500_command = cc2500::Command {
-//			.channel = 0,
-//			.modulation = cc2500::Modulation::MSK,
-//			.manchester_encoding = false,
-			.length = 15,
-			.data = data };
-//		this->parent_->queue_command(cc2500_command);
-		this->parent_->send_command(cc2500_command);
+		this->send_command(data, 15);
 //	}
 }
 
