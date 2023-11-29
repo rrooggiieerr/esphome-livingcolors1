@@ -14,14 +14,14 @@ void LivingColors1::dump_config() {
 //		ESP_LOGCONFIG(TAG, "  Command repeats: %d", this->command_repeats_.value());
 }
 
-void LivingColors1::queue_light(uint64_t address, Command command, uint8_t hue,
+void LivingColors1::set_light(uint64_t address, Command command, uint8_t hue,
 		uint8_t saturation, uint8_t value) {
-	ESP_LOGV(TAG, "Queuing command 0x%02X 0x%02X 0x%02X 0x%02X to address 0x%016" PRIX64, (uint8_t) command, hue, saturation, value, address);
+	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", address, (uint8_t) command, hue, saturation, value);
 
 //	for (int i = 0; i < this->command_repeats_.value_or(1); i++) {
 		uint8_t data[15];
 
-		// Fixed
+		// Packet length, 14 bytes
 		data[0] = 0x0E;
 
 		// Addresses

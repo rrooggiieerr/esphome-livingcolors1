@@ -18,7 +18,7 @@ public:
 //		this->command_repeats_ = n_times;
 //	}
 
-	void queue_light(uint64_t address, Command command, uint8_t hue,
+	void set_light(uint64_t address, Command command, uint8_t hue,
 			uint8_t saturation, uint8_t value);
 
 protected:

@@ -52,7 +52,7 @@ void LivingColors1Light::write_state(light::LightState *state) {
 		value = 0;
 	}
 
-	this->parent_->queue_light(this->address_, command, hue, saturation, value);
+	this->parent_->set_light(this->address_, command, hue, saturation, value);
 }
 
 }
