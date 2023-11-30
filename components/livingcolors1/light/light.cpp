@@ -11,7 +11,8 @@ void LivingColors1Light::setup() {
 }
 
 void LivingColors1Light::dump_config() {
-	ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
+	ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");
+	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
 }
 
 void LivingColors1Light::setup_state(light::LightState *state) {
@@ -38,13 +39,6 @@ void LivingColors1Light::write_state(light::LightState *state) {
 		hue = (uint8_t) lroundf(_hue * (255.0 / 360.0));
 		saturation = (uint8_t) lroundf(_saturation * 255.0);
 		value = (uint8_t) lroundf(_value * 255.0);
-
-		ESP_LOGD(TAG, "_hue: %d", _hue);
-		ESP_LOGD(TAG, "hue: %f", (_hue * (255.0/360.0)));
-		ESP_LOGD(TAG, "hue: %d", hue);
-		ESP_LOGD(TAG, "_saturation: %f", _saturation);
-		ESP_LOGD(TAG, "saturation: %d", saturation);
-		ESP_LOGD(TAG, "_value: %f", _value); ESP_LOGD(TAG, "value: %d", value);
 	} else {
 		command = Command::OFF;
 		hue = 0;
