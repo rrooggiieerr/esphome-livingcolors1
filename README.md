@@ -34,7 +34,6 @@ spi:
 
 cc2500:
   cs_pin: GPIO15
-  channel_number: 3
   output_power: 0xFF
 
 livingcolors1:
