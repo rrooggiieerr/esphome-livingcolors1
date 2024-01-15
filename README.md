@@ -17,8 +17,16 @@ esphome:
   name: livingcolors1
 
 external_components:
-  - source: github://rrooggiieerr/esphome-cc2500
-  - source: github://rrooggiieerr/esphome-livingcolors1
+  - source:
+      type: git
+      url: https://github.com/rrooggiieerr/esphome-cc2500
+      ref: 0.0.2
+    components: [cc2500]
+  - source:
+      type: git
+      url: https://github.com/rrooggiieerr/esphome-livingcolors1
+      ref: 0.0.2
+    components: [livingcolors1]
 
 esp8266:
   board: nodemcu
