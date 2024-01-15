@@ -3,6 +3,8 @@
 #include "esphome/core/log.h"
 #include "esphome/components/cc2500/cc2500.h"
 
+#include <cinttypes>
+
 namespace esphome {
 namespace livingcolors1 {
 

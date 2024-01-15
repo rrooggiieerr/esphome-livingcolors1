@@ -1,6 +1,8 @@
 #include "esphome/core/log.h"
 #include "light.h"
 
+#include <cinttypes>
+
 namespace esphome {
 namespace livingcolors1 {
 
