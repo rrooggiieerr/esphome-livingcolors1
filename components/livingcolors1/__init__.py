@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
-import esphome.components.cc2500
+import esphome.components.cc2500 as cc2500
 
 DEPENDENCIES = ["cc2500"]
 CODEOWNERS = ["@rrooggiieerr"]
