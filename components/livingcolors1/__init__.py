@@ -1,13 +1,14 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.const import CONF_ID
-from esphome.components.cc2500 import CC2500Device, CC2500_DEVICE_SCHEMA
+from esphome.components import cc2500
+from esphome.components.cc2500 import CC2500_DEVICE_SCHEMA
 
 DEPENDENCIES = ["cc2500"]
 CODEOWNERS = ["@rrooggiieerr"]
 
 livingcolors1_ns = cg.esphome_ns.namespace("livingcolors1")
-LivingColors1Component = livingcolors1_ns.class_("LivingColors1Component", CC2500Device, cg.Component)
+LivingColors1Component = livingcolors1_ns.class_("LivingColors1Component", cc2500.CC2500Device, cg.Component)
 
 CONF_LIVINGCOLORS1_ID = 'livingcolors1_id'
 # CONF_COMMAND_REPEATS = 'command_repeats'
