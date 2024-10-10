@@ -10,6 +10,17 @@ namespace livingcolors1 {
 
 static const char *TAG = "livingcolors1";
 
+void LivingColors1Component::setup() {
+	ESP_LOGCONFIG(TAG, "Setting up Living Colors 1st generation component...");
+
+	uint8_t data[15];
+	memset(data, 0, sizeof(data));
+	data[0] = 0x0E;
+	data[9] = 0x11;
+
+	this->send_command(data, 15);
+}
+
 void LivingColors1Component::dump_config() {
 	ESP_LOGCONFIG(TAG, "Living Colors 1st generation component:");
 //	if (this->command_repeats_.has_value())
