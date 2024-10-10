@@ -21,23 +21,24 @@ void LivingColors1Component::setup() {
 	this->send_command(data, 15);
 }
 
-void LivingColors1Component::dump_config() {
-	ESP_LOGCONFIG(TAG, "Living Colors 1st generation component:");
-//	if (this->command_repeats_.has_value())
-//		ESP_LOGCONFIG(TAG, "  Command repeats: %d", this->command_repeats_.value());
-}
+//void LivingColors1Component::dump_config() {
+//	ESP_LOGCONFIG(TAG, "Living Colors 1st generation component:");
+////	if (this->command_repeats_.has_value())
+////		ESP_LOGCONFIG(TAG, "  Command repeats: %d", this->command_repeats_.value());
+//}
 
 bool LivingColors1Component::receive_command(uint8_t *data, uint8_t length) {
-	ESP_LOGD(TAG, "LivingColors1Component::receive_command");
+	ESP_LOGV(TAG, "LivingColors1Component::receive_command");
 	// Validate data length, 17 bytes
 	if(length != 17) {
-		//ESP_LOGD(TAG, "Invalid data length: %d", length);
+		// Invalid data length can happen when data from other cc2500 devices is received.
+		ESP_LOGV(TAG, "Invalid data length: %d", length);
 		return false;
 	}
 
 	// Validate packet length, 14 bytes
 	if(data[0] != 14) {
-		ESP_LOGD(TAG, "Invalid packet length: %d", data[0]);
+		ESP_LOGE(TAG, "Invalid packet length: %d", data[0]);
 		return false;
 	}
 
@@ -49,13 +50,18 @@ bool LivingColors1Component::receive_command(uint8_t *data, uint8_t length) {
 
 	// If the first 4 bytes of the address are all OxFF it seems to be a special address (pairing?)
 	if(address == 0xFFFFFFFF00000000) {
-		ESP_LOGD(TAG, "LivingColors1 special address");
+		ESP_LOGV(TAG, "Special address");
+		uint64_t payload = 0;
+		for(int i = 9; i <= 14; i++) {
+			payload += uint64_t(data[i]) << ((8 - i) * 8);
+		}
+		ESP_LOGV(TAG, "  payload: 0x%016" PRIX64, payload);
 		return true;
 	}
 
 	// Validate fixed value
 	if(data[9] != 0x11) {
-		ESP_LOGD(TAG, "Invalid fixed value: 0x%02X", data[9]);
+		ESP_LOGE(TAG, "Invalid fixed value: 0x%02X", data[9]);
 		return false;
 	}
 
@@ -63,43 +69,49 @@ bool LivingColors1Component::receive_command(uint8_t *data, uint8_t length) {
 	for(int i = 5; i <= 8; i++) {
 		address += uint64_t(data[i]) << ((8 - i) * 8);
 	}
-	ESP_LOGD(TAG, "address: 0x%016" PRIX64, address);
+	ESP_LOGV(TAG, "address: 0x%016" PRIX64, address);
 
-	// Fixed
-	//data[9];
-
-	// Command
-	uint8_t command = data[10];
-	ESP_LOGD(TAG, "command: %d", command);
-
-	// Counter
-	uint8_t serial_number = data[11];
-	ESP_LOGD(TAG, "serial number: %d", serial_number);
-
-	// HSV Color values
-	uint8_t hue = data[12];
-	uint8_t saturation = data[13];
-	uint8_t value = data[14];
-	ESP_LOGD(TAG, "hue: %d", hue);
-	ESP_LOGD(TAG, "saturation: %d", saturation);
-	ESP_LOGD(TAG, "value: %d", value);
-
-	ESP_LOGD(TAG, "Received command for address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", address, (uint8_t) command, hue, saturation, value);
-
+	// Check if the address is handled by a device
 	bool success = false;
 	for (auto device : this->devices_) {
 		if(device->address == address) {
-			device->receive_command((Command) command, hue, saturation, value);
 			success = true;
 			break;
 		}
 	}
 
+	// If the address is not yet handled log the address as detected
 	if(!success) {
 		ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
+		return true;
 	}
 
-	return true;
+	// Command
+	uint8_t command = data[10];
+	ESP_LOGV(TAG, "command: 0x%02X", command);
+
+	// Counter
+	uint8_t serial_number = data[11];
+	ESP_LOGV(TAG, "serial number: %d", serial_number);
+
+	// HSV Color values
+	uint8_t hue = data[12];
+	uint8_t saturation = data[13];
+	uint8_t value = data[14];
+	ESP_LOGV(TAG, "hue: %d", hue);
+	ESP_LOGV(TAG, "saturation: %d", saturation);
+	ESP_LOGV(TAG, "value: %d", value);
+
+	ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command, address, hue, saturation, value);
+
+	for (auto device : this->devices_) {
+		if(device->address == address) {
+			device->receive_command((Command) command, hue, saturation, value);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void LivingColors1Component::set_light(uint64_t address, Command command, uint8_t hue,

@@ -16,7 +16,7 @@ class LivingColors1Component: public Component, public cc2500::CC2500Device<0, 3
 public:
 	void setup() override;
 
-	void dump_config() override;
+//	void dump_config() override;
 	bool receive_command(uint8_t *data, uint8_t length) override;
 
 //	void set_command_repeats(uint16_t n_times) {

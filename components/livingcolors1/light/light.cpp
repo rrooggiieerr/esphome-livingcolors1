@@ -61,18 +61,18 @@ bool LivingColors1Light::receive_command(Command command, uint8_t hue, uint8_t s
 		float _saturation = float(saturation) / 255;
 		float _value = float(value) / 255;
 
-		ESP_LOGD(TAG, "hue: %d", hue);
-		ESP_LOGD(TAG, "_hue: %d", _hue);
-		ESP_LOGD(TAG, "saturation: %d", saturation);
-		ESP_LOGD(TAG, "_saturation: %f", _saturation);
-		ESP_LOGD(TAG, "value: %d", value);
-		ESP_LOGD(TAG, "_value: %f", _value);
+		ESP_LOGV(TAG, "hue: %d", hue);
+		ESP_LOGV(TAG, "_hue: %d", _hue);
+		ESP_LOGV(TAG, "saturation: %d", saturation);
+		ESP_LOGV(TAG, "_saturation: %f", _saturation);
+		ESP_LOGV(TAG, "value: %d", value);
+		ESP_LOGV(TAG, "_value: %f", _value);
 
 		float red, green, blue;
 		hsv_to_rgb(_hue, _saturation, _value, red, green, blue);
-		ESP_LOGD(TAG, "red: %f", red);
-		ESP_LOGD(TAG, "green: %f", green);
-		ESP_LOGD(TAG, "blue: %f", blue);
+		ESP_LOGV(TAG, "red: %f", red);
+		ESP_LOGV(TAG, "green: %f", green);
+		ESP_LOGV(TAG, "blue: %f", blue);
 
 		auto call = this->state_->make_call();
 		call.set_state(true);
