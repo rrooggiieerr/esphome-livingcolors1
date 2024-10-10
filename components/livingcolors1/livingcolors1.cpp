@@ -91,7 +91,12 @@ bool LivingColors1Component::receive_command(uint8_t *data, uint8_t length) {
 		if(device->address == address) {
 			device->receive_command((Command) command, hue, saturation, value);
 			success = true;
+			break;
 		}
+	}
+
+	if(!success) {
+		ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
 	}
 
 	return true;
