@@ -3,7 +3,7 @@ import esphome.config_validation as cv
 from esphome.components import light
 from esphome.const import CONF_OUTPUT_ID
 
-from .. import livingcolors1_ns, CONF_LIVINGCOLORS1_ID, LivingColors1
+from .. import livingcolors1_ns, CONF_LIVINGCOLORS1_ID, LivingColors1Component
 
 DEPENDENCIES = ["livingcolors1"]
 CODEOWNERS = ["@rrooggiieerr"]
@@ -15,7 +15,7 @@ LivingColors1Light = livingcolors1_ns.class_("LivingColors1Light", cg.Component,
 CONFIG_SCHEMA = cv.All(light.LIGHT_SCHEMA.extend(
     {
         cv.GenerateID(CONF_OUTPUT_ID): cv.declare_id(LivingColors1Light),
-        cv.GenerateID(CONF_LIVINGCOLORS1_ID): cv.use_id(LivingColors1),
+        cv.GenerateID(CONF_LIVINGCOLORS1_ID): cv.use_id(LivingColors1Component),
         cv.Required(CONF_ADDRESS): cv.hex_uint64_t,
     }
 ).extend(cv.COMPONENT_SCHEMA))

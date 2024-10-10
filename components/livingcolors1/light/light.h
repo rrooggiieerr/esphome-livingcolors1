@@ -10,7 +10,7 @@
 namespace esphome {
 namespace livingcolors1 {
 
-class LivingColors1Light: public Component, public light::LightOutput {
+class LivingColors1Light: public Component, public LivingColors1Client, public light::LightOutput {
 public:
 	void setup() override;
 
@@ -29,18 +29,9 @@ public:
 		traits.set_supported_color_modes( { light::ColorMode::RGB });
 		return traits;
 	}
-
-	void set_parent(LivingColors1 *parent) {
-		this->parent_ = parent;
-	}
-
-	void set_address(uint64_t address) {
-		this->address_ = address;
-	}
+	bool receive_command(Command command, uint8_t hue, uint8_t saturation, uint8_t value) override;
 
 protected:
-	LivingColors1 *parent_;
-	uint64_t address_;
 	light::LightState *state_ { nullptr };
 };
 

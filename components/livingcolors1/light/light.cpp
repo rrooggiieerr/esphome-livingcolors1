@@ -14,7 +14,7 @@ void LivingColors1Light::setup() {
 
 void LivingColors1Light::dump_config() {
 	ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");
-	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
+	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address);
 }
 
 void LivingColors1Light::setup_state(light::LightState *state) {
@@ -48,7 +48,39 @@ void LivingColors1Light::write_state(light::LightState *state) {
 		value = 0;
 	}
 
-	this->parent_->set_light(this->address_, command, hue, saturation, value);
+	this->parent_->set_light(this->address, command, hue, saturation, value);
+}
+
+bool LivingColors1Light::receive_command(Command command, uint8_t hue, uint8_t saturation, uint8_t value) {
+	if(command == Command::OFF) {
+		auto call = this->state_->make_call();
+		call.set_state(false);
+		call.perform();
+	} else {
+		int _hue = int(float(hue) / (255.0 / 360.0));
+		float _saturation = float(saturation) / 255;
+		float _value = float(value) / 255;
+
+		ESP_LOGD(TAG, "hue: %d", hue);
+		ESP_LOGD(TAG, "_hue: %d", _hue);
+		ESP_LOGD(TAG, "saturation: %d", saturation);
+		ESP_LOGD(TAG, "_saturation: %f", _saturation);
+		ESP_LOGD(TAG, "value: %d", value);
+		ESP_LOGD(TAG, "_value: %f", _value);
+
+		float red, green, blue;
+		hsv_to_rgb(_hue, _saturation, _value, red, green, blue);
+		ESP_LOGD(TAG, "red: %f", red);
+		ESP_LOGD(TAG, "green: %f", green);
+		ESP_LOGD(TAG, "blue: %f", blue);
+
+		auto call = this->state_->make_call();
+		call.set_state(true);
+		call.set_rgb(red, green, blue);
+		call.perform();
+	}
+
+	return true;
 }
 
 }
