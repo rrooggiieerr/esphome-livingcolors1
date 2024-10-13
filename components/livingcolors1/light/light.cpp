@@ -57,7 +57,7 @@ bool LivingColors1Light::receive_command(Command command, uint8_t hue, uint8_t s
 		call.set_state(false);
 		call.perform();
 	} else {
-		int _hue = int(float(hue) / (255.0 / 360.0));
+		int _hue = int(round(float(hue) / (255.0 / 360.0)));
 		float _saturation = float(saturation) / 255;
 		float _value = float(value) / 255;
 
