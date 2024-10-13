@@ -77,6 +77,7 @@ bool LivingColors1Light::receive_command(Command command, uint8_t hue, uint8_t s
 		auto call = this->state_->make_call();
 		call.set_state(true);
 		call.set_rgb(red, green, blue);
+		call.set_brightness(_value);
 		call.perform();
 	}
 
