@@ -10,6 +10,10 @@
 namespace esphome {
 namespace livingcolors1 {
 
+enum class Command : uint8_t {
+	UNKNOWN = 0x01, HSV_VALUE = 0x03, ON = 0x05, OFF = 0x07
+};
+
 class LivingColors1Light: public Component, public LivingColors1Client, public light::LightOutput {
 public:
 	void setup() override;
@@ -29,7 +33,7 @@ public:
 		traits.set_supported_color_modes( { light::ColorMode::RGB });
 		return traits;
 	}
-	bool receive_command(Command command, uint8_t hue, uint8_t saturation, uint8_t value) override;
+	bool receive(uint8_t *data, uint8_t length) override;
 
 protected:
 	light::LightState *state_ { nullptr };

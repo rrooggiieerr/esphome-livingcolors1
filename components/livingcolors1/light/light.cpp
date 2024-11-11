@@ -48,10 +48,45 @@ void LivingColors1Light::write_state(light::LightState *state) {
 		value = 0;
 	}
 
-	this->parent_->set_light(this->address, command, hue, saturation, value);
+	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", this->address, (uint8_t) command, hue, saturation, value);
+	uint8_t data[5];
+
+	// Command
+	data[0] = (uint8_t) command;
+
+	// Counter
+	// data[1] = 0;
+
+	// HSV Color values
+	data[2] = hue;
+	data[3] = saturation;
+	data[4] = value;
+
+	this->send(data, 5);
 }
 
-bool LivingColors1Light::receive_command(Command command, uint8_t hue, uint8_t saturation, uint8_t value) {
+bool LivingColors1Light::receive(uint8_t *data, uint8_t length) {
+	if (length != 5)
+		return false;
+
+	// Command
+	Command command = (Command) data[0];
+	ESP_LOGV(TAG, "command: 0x%02X", command);
+
+	// Counter
+	uint8_t serial_number = data[1];
+	ESP_LOGV(TAG, "serial number: %d", serial_number);
+
+	// HSV Color values
+	uint8_t hue = data[2];
+	uint8_t saturation = data[3];
+	uint8_t value = data[4];
+	ESP_LOGV(TAG, "hue: %d", hue);
+	ESP_LOGV(TAG, "saturation: %d", saturation);
+	ESP_LOGV(TAG, "value: %d", value);
+
+	ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command, self->address, hue, saturation, value);
+
 	if(command == Command::OFF) {
 		auto call = this->state_->make_call();
 		call.set_state(false);

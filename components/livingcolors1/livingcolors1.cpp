@@ -21,12 +21,6 @@ void LivingColors1Component::setup() {
 	((CC2500Device*)this)->send(data, 15);
 }
 
-//void LivingColors1Component::dump_config() {
-//	ESP_LOGCONFIG(TAG, "Living Colors 1st generation component:");
-////	if (this->command_repeats_.has_value())
-////		ESP_LOGCONFIG(TAG, "  Command repeats: %d", this->command_repeats_.value());
-//}
-
 bool LivingColors1Component::receive(uint8_t *data, uint8_t length) {
 	ESP_LOGV(TAG, "LivingColors1Component::receive");
 	// Validate data length, 17 bytes
@@ -86,75 +80,52 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length) {
 		return true;
 	}
 
-	// Command
-	uint8_t command = data[10];
-	ESP_LOGV(TAG, "command: 0x%02X", command);
-
-	// Counter
-	uint8_t serial_number = data[11];
-	ESP_LOGV(TAG, "serial number: %d", serial_number);
-
-	// HSV Color values
-	uint8_t hue = data[12];
-	uint8_t saturation = data[13];
-	uint8_t value = data[14];
-	ESP_LOGV(TAG, "hue: %d", hue);
-	ESP_LOGV(TAG, "saturation: %d", saturation);
-	ESP_LOGV(TAG, "value: %d", value);
-
-	ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command, address, hue, saturation, value);
-
 	for (auto device : this->devices_) {
 		if(device->address == address) {
-			device->receive_command((Command) command, hue, saturation, value);
-			return true;
+			return device->receive(&data[10], 5);
 		}
 	}
 
 	return false;
 }
 
-void LivingColors1Component::set_light(uint64_t address, Command command, uint8_t hue,
-		uint8_t saturation, uint8_t value) {
-	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", address, (uint8_t) command, hue, saturation, value);
-
-//	for (int i = 0; i < this->command_repeats_.value_or(1); i++) {
-		uint8_t data[15];
-
-		// Packet length, 14 bytes
-		data[0] = 0x0E;
-
-		// Addresses
-		data[1] = uint8_t(address >> 8 * 7);
-		data[2] = uint8_t(address >> 8 * 6);
-		data[3] = uint8_t(address >> 8 * 5);
-		data[4] = uint8_t(address >> 8 * 4);
-		data[5] = uint8_t(address >> 8 * 3);
-		data[6] = uint8_t(address >> 8 * 2);
-		data[7] = uint8_t(address >> 8 * 1);
-		data[8] = uint8_t(address >> 8 * 0);
-
-		// Fixed
-		data[9] = 0x11;
-
-		// Command
-		data[10] = (uint8_t) command;
-
-		// Counter
-		data[11] = this->serial_number_++;
-
-		// HSV Color values
-		data[12] = hue;
-		data[13] = saturation;
-		data[14] = value;
-
-		((CC2500Device*)this)->send(data, 15);
-//	}
+void LivingColors1Component::send(uint8_t *data, uint8_t length) {
+	data[11] = this->serial_number_++;
+	((CC2500Device*)this)->send(data, length);
 }
 
 void LivingColors1Client::set_parent(LivingColors1Component *parent) {
 	this->parent_ = parent;
 	this->parent_->add_device(this);
+}
+
+void LivingColors1Client::send(uint8_t *data, uint8_t length) {
+	uint8_t data_[10 + length];
+
+	// Packet length
+	data_[0] = 10 + length - 1;
+
+	// Addresses
+	data_[1] = uint8_t(address >> 8 * 7);
+	data_[2] = uint8_t(address >> 8 * 6);
+	data_[3] = uint8_t(address >> 8 * 5);
+	data_[4] = uint8_t(address >> 8 * 4);
+	data_[5] = uint8_t(address >> 8 * 3);
+	data_[6] = uint8_t(address >> 8 * 2);
+	data_[7] = uint8_t(address >> 8 * 1);
+	data_[8] = uint8_t(address >> 8 * 0);
+
+	// Fixed
+	data_[9] = 0x11;
+
+	// Command
+	for(int j = 0; j < length; j++)
+		data_[10+j] = data[j];
+
+	for (int i = 0; i < this->send_repeats_; i++) {
+		this->parent_->send(data_, 10 + length);
+		esphome::delay(14);
+	}
 }
 
 
