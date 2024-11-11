@@ -85,7 +85,7 @@ bool LivingColors1Light::receive(uint8_t *data, uint8_t length) {
 	ESP_LOGV(TAG, "saturation: %d", saturation);
 	ESP_LOGV(TAG, "value: %d", value);
 
-	ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command, self->address, hue, saturation, value);
+	ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command, this->address, hue, saturation, value);
 
 	if(command == Command::OFF) {
 		auto call = this->state_->make_call();
