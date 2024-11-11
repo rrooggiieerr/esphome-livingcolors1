@@ -17,7 +17,7 @@ public:
 	void setup() override;
 
 //	void dump_config() override;
-	bool receive_command(uint8_t *data, uint8_t length) override;
+	bool receive(uint8_t *data, uint8_t length) override;
 
 //	void set_command_repeats(uint16_t n_times) {
 //		this->command_repeats_ = n_times;
