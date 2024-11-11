@@ -18,7 +18,7 @@ void LivingColors1Component::setup() {
 	data[0] = 0x0E;
 	data[9] = 0x11;
 
-	this->send_command(data, 15);
+	((CC2500Device*)this)->send(data, 15);
 }
 
 //void LivingColors1Component::dump_config() {
@@ -27,8 +27,8 @@ void LivingColors1Component::setup() {
 ////		ESP_LOGCONFIG(TAG, "  Command repeats: %d", this->command_repeats_.value());
 //}
 
-bool LivingColors1Component::receive_command(uint8_t *data, uint8_t length) {
-	ESP_LOGV(TAG, "LivingColors1Component::receive_command");
+bool LivingColors1Component::receive(uint8_t *data, uint8_t length) {
+	ESP_LOGV(TAG, "LivingColors1Component::receive");
 	// Validate data length, 17 bytes
 	if(length != 17) {
 		// Invalid data length can happen when data from other cc2500 devices is received.
@@ -148,7 +148,7 @@ void LivingColors1Component::set_light(uint64_t address, Command command, uint8_
 		data[13] = saturation;
 		data[14] = value;
 
-		this->send_command(data, 15);
+		((CC2500Device*)this)->send(data, 15);
 //	}
 }
 
