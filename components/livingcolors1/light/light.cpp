@@ -82,10 +82,6 @@ bool LivingColors1Light::receive(uint8_t *data, uint8_t length) {
 	Command command = (Command) data[0];
 	ESP_LOGV(TAG, "command: 0x%02X", command);
 
-	// Counter
-	uint8_t serial_number = data[1];
-	ESP_LOGV(TAG, "serial number: %d", serial_number);
-
 	// HSV Color values
 	uint8_t hue = data[2];
 	uint8_t saturation = data[3];
