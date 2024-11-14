@@ -22,6 +22,9 @@ void LivingColors1Light::setup_state(light::LightState *state) {
 	state_ = state;
 	state_->set_gamma_correct(0);
 	state_->set_default_transition_length(0);
+	std::vector<light::LightEffect *> effects;
+	effects.push_back(new LivingColors1CycleLightEffect());
+	state_->add_effects(effects);
 }
 
 void LivingColors1Light::write_state(light::LightState *state) {
@@ -94,8 +97,10 @@ bool LivingColors1Light::receive(uint8_t *data, uint8_t length) {
 
 	if(command == Command::OFF) {
 		auto call = this->state_->turn_off();
+		call.set_effect("none");
 		call.perform();
-	} else {
+		return true;
+	} else if (command == Command::HSV_VALUE or command == Command::ON or command == Command::CYCLE) {
 		int _hue = int(round(float(hue) / (255.0 / 360.0)));
 		float _saturation = float(saturation) / 255;
 		float _value = float(value) / 255;
@@ -106,10 +111,18 @@ bool LivingColors1Light::receive(uint8_t *data, uint8_t length) {
 		call.set_state(true);
 		call.set_rgb(red, green, blue);
 		call.set_brightness(_value);
-		call.perform();
-	}
 
-	return true;
+		if(command == Command::CYCLE) {
+			call.set_effect("Color Cycle");
+			call.set_save(false);
+		}
+
+		call.perform();
+		return true;
+	} else {
+		ESP_LOGW(TAG, "Received unknown command 0x%02X", command);
+		return false;
+	}
 }
 
 }
