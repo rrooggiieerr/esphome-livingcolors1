@@ -37,6 +37,7 @@ public:
 
 protected:
 	light::LightState *state_ { nullptr };
+	bool receive_ = false;
 };
 
 }

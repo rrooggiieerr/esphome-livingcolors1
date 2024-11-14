@@ -25,6 +25,12 @@ void LivingColors1Light::setup_state(light::LightState *state) {
 }
 
 void LivingColors1Light::write_state(light::LightState *state) {
+	if (this->receive_ == true) {
+		ESP_LOGV(TAG, "Receive mode, don't write state");
+		this->receive_ = false;
+		return;
+	}
+
 	float brightness;
 	state->current_values_as_brightness(&brightness);
 
@@ -69,6 +75,8 @@ void LivingColors1Light::write_state(light::LightState *state) {
 bool LivingColors1Light::receive(uint8_t *data, uint8_t length) {
 	if (length != 5)
 		return false;
+
+	this->receive_ = true;
 
 	// Command
 	Command command = (Command) data[0];
