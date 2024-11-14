@@ -36,34 +36,35 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length) {
 		return false;
 	}
 
-	// Get the first 4 bytes of the address
-	uint64_t address = 0;
-	for(int i = 1; i <= 4; i++) {
-		address += uint64_t(data[i]) << ((8 - i) * 8);
-	}
-
-	// If the first 4 bytes of the address are all OxFF it seems to be a special address (pairing?)
-	if(address == 0xFFFFFFFF00000000) {
-		ESP_LOGV(TAG, "Special address");
-		uint64_t payload = 0;
-		for(int i = 9; i <= 14; i++) {
-			payload += uint64_t(data[i]) << ((8 - i) * 8);
-		}
-		ESP_LOGV(TAG, "  payload: 0x%016" PRIX64, payload);
-		return true;
-	}
-
 	// Validate fixed value
 	if(data[9] != 0x11) {
 		ESP_LOGE(TAG, "Invalid fixed value: 0x%02X", data[9]);
 		return false;
 	}
 
-	// Get the remaining 4 bytes of the address
-	for(int i = 5; i <= 8; i++) {
+	// Get the address
+	uint64_t address = 0;
+	for(int i = 1; i <= 8; i++) {
 		address += uint64_t(data[i]) << ((8 - i) * 8);
 	}
 	ESP_LOGV(TAG, "address: 0x%016" PRIX64, address);
+
+	// Get the payload
+	uint64_t payload = 0;
+	for(int i = 3; i <= 8; i++) {
+		payload += uint64_t(data[i + 6]) << ((8 - i) * 8);
+	}
+	ESP_LOGV(TAG, "payload: 0x%06" PRIX64, payload);
+
+	// Serial number
+	uint8_t serial_number = data[11];
+	ESP_LOGV(TAG, "serial number: %d", serial_number);
+
+	// If the first 4 bytes of the address are all OxFF it seems to be a special address (pairing?)
+	if((address & 0xFFFFFFFF00000000) == 0xFFFFFFFF00000000) {
+		ESP_LOGV(TAG, "Special address");
+		return true;
+	}
 
 	// Check if the address is handled by a device
 	bool success = false;
