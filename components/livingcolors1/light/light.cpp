@@ -116,8 +116,15 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
 
 	if(command == Command::OFF || command == Command::ACK_OFF) {
 		this->receive_ = true;
+		if(this->state_->get_effect_name() == "Color Cycle") {
+			auto call = this->state_->make_call();
+			call.set_effect("none");
+			call.set_save(false);
+
+			call.perform();
+		}
+
 		auto call = this->state_->turn_off();
-		call.set_effect("none");
 
 		call.perform();
 		return true;
