@@ -30,7 +30,7 @@ public:
 		traits.set_supported_color_modes( { light::ColorMode::RGB });
 		return traits;
 	}
-	bool receive(uint8_t *data, uint8_t length) override;
+	bool receive(uint64_t address, uint8_t *data, uint8_t length) override;
 
 protected:
 	light::LightState *state_ { nullptr };

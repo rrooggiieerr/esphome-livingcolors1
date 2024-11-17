@@ -14,7 +14,7 @@ void LivingColors1Light::setup() {
 
 void LivingColors1Light::dump_config() {
 	ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");
-	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address);
+	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
 	ESP_LOGCONFIG(TAG, "  Send repeats: %d", this->send_repeats_);
 }
 
@@ -58,7 +58,7 @@ void LivingColors1Light::write_state(light::LightState *state) {
 		value = 0;
 	}
 
-	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", this->address, (uint8_t) command, hue, saturation, value);
+	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", this->address_, (uint8_t) command, hue, saturation, value);
 	uint8_t data[5];
 
 	// Command

@@ -101,7 +101,7 @@ void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
 	this->parent_->add_device(this);
 }
 
-void LivingColors1ClientComponent::send(uint8_t *data, uint8_t length) {
+void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_t length) {
 	uint8_t data_[10 + length];
 
 	// Packet length
