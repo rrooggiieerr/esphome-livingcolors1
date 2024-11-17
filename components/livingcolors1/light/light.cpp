@@ -29,7 +29,7 @@ void LivingColors1Light::setup_state(light::LightState *state) {
 
 void LivingColors1Light::write_state(light::LightState *state) {
 	if (this->receive_ == true) {
-		ESP_LOGV(TAG, "Receive mode, don't write state");
+		ESP_LOGV(TAG, "Receive mode, don't write state to light");
 		this->receive_ = false;
 		return;
 	}
@@ -59,13 +59,11 @@ void LivingColors1Light::write_state(light::LightState *state) {
 	}
 
 	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", this->address_, (uint8_t) command, hue, saturation, value);
+
 	uint8_t data[5];
 
 	// Command
 	data[0] = (uint8_t) command;
-
-	// Counter
-	// data[1] = 0;
 
 	// HSV Color values
 	data[2] = hue;
