@@ -15,13 +15,6 @@ class LivingColors1Light: public LivingColors1ClientComponent, public light::Lig
 public:
 	void setup() override;
 
-	uint8_t hue = 0;
-//	// For testing
-//	void loop() {
-//		hue++;
-//		this->parent_->queue_light(this->address_, Command::ON, hue, 255, 255);
-//		delayMicroseconds(500);
-//	}
 	void dump_config() override;
 	void setup_state(light::LightState *state) override;
 	void write_state(light::LightState *state) override;
