@@ -89,7 +89,8 @@ void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
 }
 
 void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_t length) {
-	uint8_t data_[10 + length];
+	uint8_t length_ = 10 + length;
+	uint8_t data_[length_];
 
 	// Packet length
 	data_[0] = 10 + length - 1;
@@ -112,8 +113,9 @@ void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_
 		data_[10+j] = data[j];
 
 	for (int i = 0; i < this->send_repeats_; i++) {
-		this->parent_->send(data_, 10 + length);
-		esphome::delay(14);
+		if(i > 0)
+			esphome::delay(14);
+		this->parent_->send(&data_[0], length_);
 	}
 }
 
