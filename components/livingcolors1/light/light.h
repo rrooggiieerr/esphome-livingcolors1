@@ -11,11 +11,7 @@
 namespace esphome {
 namespace livingcolors1 {
 
-enum class Command : uint8_t {
-	UNKNOWN = 0x01, HSV_VALUE = 0x03, ON = 0x05, OFF = 0x07, CYCLE = 0x12
-};
-
-class LivingColors1Light: public Component, public LivingColors1Client, public light::LightOutput {
+class LivingColors1Light: public LivingColors1ClientComponent, public light::LightOutput {
 public:
 	void setup() override;
 

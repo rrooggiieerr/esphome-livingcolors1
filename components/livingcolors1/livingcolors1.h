@@ -6,7 +6,7 @@
 namespace esphome {
 namespace livingcolors1 {
 
-class LivingColors1Client;
+class LivingColors1ClientComponent;
 
 class LivingColors1Component: public Component, public cc2500::CC2500Device<0, 3> {
 public:
@@ -15,18 +15,16 @@ public:
 //	void dump_config() override;
 	bool receive(uint8_t *data, uint8_t length) override;
 
-	void add_device(LivingColors1Client *device) { this->devices_.push_back(device); }
+	void add_device(LivingColors1ClientComponent *device) { this->devices_.push_back(device); }
 	void send(uint8_t *data, uint8_t length);
 protected:
-	std::vector<LivingColors1Client *> devices_;
+	std::vector<LivingColors1ClientComponent *> devices_;
 
 	uint8_t serial_number_ = 0;
 };
 
-class LivingColors1Client {
+class LivingColors1ClientComponent: public Component {
 public:
-	LivingColors1Client() {}
-
 	void set_parent(LivingColors1Component *parent);
 	void set_address(uint64_t address) {
 		this->address = address;

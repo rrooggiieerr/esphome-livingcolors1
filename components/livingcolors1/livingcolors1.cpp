@@ -96,12 +96,12 @@ void LivingColors1Component::send(uint8_t *data, uint8_t length) {
 	((CC2500Device*)this)->send(data, length);
 }
 
-void LivingColors1Client::set_parent(LivingColors1Component *parent) {
+void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
 	this->parent_ = parent;
 	this->parent_->add_device(this);
 }
 
-void LivingColors1Client::send(uint8_t *data, uint8_t length) {
+void LivingColors1ClientComponent::send(uint8_t *data, uint8_t length) {
 	uint8_t data_[10 + length];
 
 	// Packet length
