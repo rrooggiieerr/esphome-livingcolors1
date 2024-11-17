@@ -90,12 +90,14 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
 		return true;
 	}
 
-	if(this->is_address_(address) && command == Command::CYCLE_REQUEST)
-		ESP_LOGE(TAG, "Color cycling request");
-	else if(this->is_response_(address) && command == Command::ACK)
-		ESP_LOGD(TAG, "Acknowledge");
+	if(this->is_address_(address) && command == Command::CYCLE)
+		ESP_LOGD(TAG, "Color cycling request");
 	else if(this->is_special_(address) && command == Command::CYCLE_SYNC)
 		ESP_LOGD(TAG, "Color cycling sync");
+	else if(this->is_response_(address)) {
+		ESP_LOGD(TAG, "Response");
+		ESP_LOGD(TAG, "Command : 0x%02X", command);
+	}
 	else if (!this->is_address_(address))
 		return false;
 
@@ -112,34 +114,14 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
 	float red, green, blue;
 	hsv_to_rgb(_hue, _saturation, _value, red, green, blue);
 
-	if(command == Command::OFF) {
+	if(command == Command::OFF || command == Command::ACK_OFF) {
 		this->receive_ = true;
 		auto call = this->state_->turn_off();
 		call.set_effect("none");
-		call.perform();
-		return true;
-	} else if(command == Command::ON) {
-		this->receive_ = true;
-
-		auto call = this->state_->turn_on();
-		call.set_rgb(red, green, blue);
-		call.set_brightness(_value);
-		call.set_effect("none");
 
 		call.perform();
 		return true;
-	} else if(command == Command::ACK) {
-		this->receive_ = true;
-
-		auto call = this->state_->make_call();
-		call.set_state(true);
-		call.set_rgb(red, green, blue);
-		call.set_brightness(_value);
-		call.set_save(false);
-
-		call.perform();
-		return true;
-	} else if(command == Command::CYCLE_REQUEST || command == Command::CYCLE_SYNC) {
+	} else if(command == Command::CYCLE || command == Command::ACK_CYCLE || command == Command::CYCLE_SYNC) {
 		this->receive_ = true;
 
 		auto call = this->state_->make_call();
@@ -151,13 +133,24 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
 
 		call.perform();
 		return true;
+	} else if(this->state_->get_effect_name() == "Color Cycle") {
+		ESP_LOGE(TAG, "Light is color cycling, can't set color");
+		return true;
+	} else if(command == Command::ON || command == Command::ACK_ON) {
+		this->receive_ = true;
+
+		auto call = this->state_->turn_on();
+		call.set_rgb(red, green, blue);
+		call.set_brightness(_value);
+		if(command == Command::ON)
+			call.set_effect("none");
+
+		call.perform();
+		return true;
 	} else if(!this->state_->current_values.is_on()) {
-		ESP_LOGD(TAG, "Light is off");
+		ESP_LOGD(TAG, "Light is off, can't set color");
 		return true;
-	} else if(this->state_->get_effect_name() == "Color Cycle" && command == Command::HSV_VALUE) {
-		ESP_LOGD(TAG, "Light is color cycling, can't set color");
-		return true;
-	} else if (command == Command::HSV_VALUE) {
+	} else if (command == Command::HSV || command == Command::ACK_HSV) {
 		this->receive_ = true;
 
 		auto call = this->state_->make_call();
@@ -204,7 +197,7 @@ void LivingColors1CycleLightEffect::apply() {
 
 		output->send(&data[0], 5);
 
-		data[0] = (uint8_t) Command::CYCLE_REQUEST;
+		data[0] = (uint8_t) Command::CYCLE;
 		output->send(&data[0], 5);
 
 		this->applied_ = true;

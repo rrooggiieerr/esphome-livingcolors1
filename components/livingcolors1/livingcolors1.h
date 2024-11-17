@@ -9,12 +9,15 @@ namespace livingcolors1 {
 enum class Command : uint8_t {
 	PAIRING_REQUEST = 0x01,
 	PAIRING_RESPONSE = 0x02,
-	HSV_VALUE = 0x03,
+	HSV = 0x03,
+	ACK_HSV = 0x04,
 	ON = 0x05,
-	ACK = 0x06,
+	ACK_ON = 0x06,
 	OFF = 0x07,
+	ACK_OFF = 0x08,
 	UNPAIRING_REQUEST = 0x0A,
-	CYCLE_REQUEST = 0x0C,
+	CYCLE = 0x0C,
+	ACK_CYCLE = 0x0D,
 	CYCLE_SYNC = 0x12,
 };
 
