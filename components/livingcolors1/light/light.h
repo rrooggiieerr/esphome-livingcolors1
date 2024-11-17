@@ -35,21 +35,16 @@ public:
 	LivingColors1CycleLightEffect()
 	: light::LightEffect("Color Cycle") {}
 
-	/// Initialize this LightEffect. Will be called once after creation.
-	void start() {}
-
-	void start_internal() { this->start(); }
-
 	/// Called when this effect is about to be removed
-	void stop() {}
+	void stop() override;
 
 	/// Apply this effect. Use the provided state for starting transitions, ...
-	void apply() {}
+	void apply() override;
 
 	/// Internal method called by the LightState when this light effect is registered in it.
 	void init() {}
 protected:
-
+	bool applied_ = false;
 };
 
 }

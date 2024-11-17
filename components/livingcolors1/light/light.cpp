@@ -213,5 +213,23 @@ void LivingColors1CycleLightEffect::apply() {
 	}
 }
 
+void LivingColors1CycleLightEffect::stop() {
+	ESP_LOGV(TAG, "LivingColors1CycleLightEffect::stop");
+	LivingColors1Light *output = (LivingColors1Light*) this->state_->get_output();
+	uint8_t data[5];
+
+	// Command
+	data[0] = (uint8_t) Command::OFF;
+
+	// HSV Color values
+	data[2] = 0x00;
+	data[3] = 0x00;
+	data[4] = 0x00;
+
+	output->send(&data[0], 5);
+	this->applied_ = false;
+}
+
+
 }
 }
