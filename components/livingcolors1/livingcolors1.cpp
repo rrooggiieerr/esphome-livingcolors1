@@ -56,37 +56,24 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length) {
 	}
 	ESP_LOGV(TAG, "payload: 0x%06" PRIX64, payload);
 
+	// Command
+	Command command = (Command) data[10];
+
 	// Serial number
 	uint8_t serial_number = data[11];
 	ESP_LOGV(TAG, "serial number: %d", serial_number);
 
-	// If the first 4 bytes of the address are all OxFF it seems to be a special address for color
-	// cycling (and more?). The last 4 bytes of the address seem to be part of the device address.
-	if((address & 0xFFFFFFFF00000000) == 0xFFFFFFFF00000000) {
-		ESP_LOGV(TAG, "Special address");
-		bool success = false;
-		for (auto device : this->devices_) {
-			if((device->address & 0x00000000FFFFFFFF) == (address & 0x00000000FFFFFFFF)) {
-				ESP_LOGV(TAG, "Device address matches special address");
-				if (device->receive(&data[10], 5))
-					success = true;
-			}
-		}
-
-		if(success)
-			return true;
-
-		ESP_LOGV(TAG, "No matching device address for special address");
-		return false;
-	}
-
 	// Check if the address is handled by a device
+	bool success = false;
 	for (auto device : this->devices_) {
-		if(device->address == address)
-			return device->receive(&data[10], 5);
+		if(device->receive(address, &data[10], 5))
+			success = true;
 	}
 
-	// If the address is not yet handled log the address as detected
+	if(success)
+		return true;
+
+	// If the address is not yet handled, log the address as detected
 	ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
 	return false;
 }

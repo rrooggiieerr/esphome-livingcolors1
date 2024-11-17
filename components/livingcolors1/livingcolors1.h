@@ -47,7 +47,7 @@ public:
 	void send(uint8_t *data, uint8_t length) {
 		this->send_(this->address_, &data[0], length);
 	}
-	virtual bool receive(uint8_t *data, uint8_t length);
+	virtual bool receive(uint64_t address, uint8_t *data, uint8_t length);
 
 protected:
 	LivingColors1Component *parent_ { nullptr };
