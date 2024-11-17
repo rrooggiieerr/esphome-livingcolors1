@@ -6,6 +6,18 @@
 namespace esphome {
 namespace livingcolors1 {
 
+enum class Command : uint8_t {
+	PAIRING_REQUEST = 0x01,
+	PAIRING_RESPONSE = 0x02,
+	HSV_VALUE = 0x03,
+	ON = 0x05,
+	ACK = 0x06,
+	OFF = 0x07,
+	UNPAIRING_REQUEST = 0x0A,
+	CYCLE_REQUEST = 0x0C,
+	CYCLE_SYNC = 0x12,
+};
+
 class LivingColors1ClientComponent;
 
 class LivingColors1Component: public Component, public cc2500::CC2500Device<0, 3> {
