@@ -25,6 +25,11 @@ protected:
 	void press_action() override;
 };
 
+class LivingColors1UnpairButton: public LivingColors1ButtonComponent {
+protected:
+	void press_action() override;
+};
+
 class LivingColors1TestButton: public LivingColors1ButtonComponent {
 public:
 protected:

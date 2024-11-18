@@ -52,6 +52,22 @@ bool LivingColors1PairButton::receive(uint64_t address, uint8_t *data, uint8_t l
 	return false;
 }
 
+void LivingColors1UnpairButton::press_action() {
+	ESP_LOGV(TAG, "Pair Button press for address 0x%016" PRIX64, this->special_address_());
+
+	uint8_t data[5];
+
+	// Command
+	data[0] = (uint8_t) Command::UNPAIRING_REQUEST;
+
+	// HSV Color values
+	data[2] = 0x00;
+	data[3] = 0x00;
+	data[4] = 0x00;
+
+	this->send(data, 5);
+}
+
 void LivingColors1TestButton::press_action() {
 	ESP_LOGV(TAG, "Test Button press for address 0x%016" PRIX64, this->address_);
 
