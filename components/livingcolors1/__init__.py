@@ -1,30 +1,37 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.const import CONF_ID
 from esphome.components import cc2500
-from esphome.components.cc2500 import CC2500_DEVICE_SCHEMA
+from esphome.const import CONF_ID
 
 DEPENDENCIES = ["cc2500"]
 CODEOWNERS = ["@rrooggiieerr"]
 
 livingcolors1_ns = cg.esphome_ns.namespace("livingcolors1")
-LivingColors1Component = livingcolors1_ns.class_("LivingColors1Component", cc2500.CC2500Device, cg.Component)
+LivingColors1Component = livingcolors1_ns.class_(
+    "LivingColors1Component", cc2500.CC2500Device, cg.Component
+)
 
-CONF_LIVINGCOLORS1_ID = 'livingcolors1_id'
+CONF_LIVINGCOLORS1_ID = "livingcolors1_id"
 CONF_ADDRESS = "address"
-CONF_SEND_REPEATS = 'send_repeats'
+CONF_SEND_REPEATS = "send_repeats"
 
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.GenerateID(): cv.declare_id(LivingColors1Component),
-    }
-).extend(CC2500_DEVICE_SCHEMA).extend(cv.COMPONENT_SCHEMA)
+CONFIG_SCHEMA = (
+    cv.Schema(
+        {
+            cv.GenerateID(): cv.declare_id(LivingColors1Component),
+        }
+    )
+    .extend(cc2500.CC2500_DEVICE_SCHEMA)
+    .extend(cv.COMPONENT_SCHEMA)
+)
+
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
-    
+
     await cg.register_component(var, config)
     await cc2500.register_cc2500_device(var, config)
+
 
 # A schema to use for all CC2500 devices, all CC2500 integrations must extend this!
 LIVINGCOLORS1_DEVICE_SCHEMA = cv.Schema(
@@ -34,6 +41,7 @@ LIVINGCOLORS1_DEVICE_SCHEMA = cv.Schema(
         cv.Optional(CONF_SEND_REPEATS): cv.positive_int,
     }
 )
+
 
 async def register_livingcolors1_device(var, config):
     parent = await cg.get_variable(config[CONF_LIVINGCOLORS1_ID])
