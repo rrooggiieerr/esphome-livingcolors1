@@ -23,7 +23,7 @@ enum class Command : uint8_t {
 
 class LivingColors1ClientComponent;
 
-class LivingColors1Component: public Component, public cc2500::CC2500Device<0, 3> {
+class LivingColors1Component: public Component, public cc2500::CC2500Device<0, 3, 14> {
 public:
 	void setup() override;
 
