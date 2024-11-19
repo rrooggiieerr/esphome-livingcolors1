@@ -12,7 +12,6 @@ from .. import (
 DEPENDENCIES = ["livingcolors1"]
 CODEOWNERS = ["@rrooggiieerr"]
 
-CONF_ACTION = "action"
 CONF_PAIR_ACTION = "pair"
 CONF_UNPAIR_ACTION = "unpair"
 # CONF_TEST_ACTION = "test"
