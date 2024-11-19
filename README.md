@@ -10,7 +10,7 @@
 
 ## Introduction
 
-This [ESPHome Externa Component](https://esphome.io/components/external_components) can emulate the
+This [ESPHome External Component](https://esphome.io/components/external_components) can emulate the
 Philips LivingColors 1st generation LED light and accompanying remote control.
 
 Features:
@@ -21,11 +21,11 @@ Features:
 
 ## Hardware required
 
-- ESP8266 or ESP32
-- CC2500 transceiver
+- ESP8266, ESP32 or other ESPHome supported microcontroller
+- CC2500 transceiver module
 
-These need to be wired as described on the
-[ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500)
+These need to be wired as described on
+[ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500).
 
 The solderpads of the CC2500 transceiver is just a bit closer spaced than the width of a ribbon
 cable, you need a steady hand to solder the wires.
