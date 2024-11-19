@@ -24,7 +24,8 @@ Features:
 - ESP8266 or ESP32
 - CC2500 transceiver
 
-These need to be wired as described on the [ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500)
+These need to be wired as described on the
+[ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500)
 
 The solderpads of the CC2500 transceiver is just a bit closer spaced than the width of a ribbon
 cable, you need a steady hand to solder the wires.
@@ -50,7 +51,7 @@ The data needed to control the LivingColors LED light consist of a 14 byte packe
 To set up this LivingColors component you first need to place a top-level SPI and CC2500 component
 which defines the GPIO pins to use.
 
-Example YAML for Wemos C3 mini and CC2500 Shield:
+Example YAML for Wemos C3 mini and CC2500 shield:
 
 ```
 esphome:
@@ -120,17 +121,27 @@ light:
 
 ## Detecting the LivingColors address
 
-There are two ways to detect the address needed to send and receive LivingColors commands. In both cases you need to enable info loglevel in your ESPHome configuration and keep the log console open. When a new LivingColors address is detected the address will be printed to the ESPHome console.
+There are two ways to detect the address needed to send and receive LivingColors commands. In both
+cases you need to enable info loglevel in your ESPHome configuration and keep the log console open.
+When a new LivingColors address is detected the address will be printed to the ESPHome console.
 
 ### Use the LivingColors remote control
 
-Flash your ESP with the above example configuration YAML except for the button and light components. Control your LivingColors LED light with the LivingColors remote control, it doesn't realy matter in which way you control it. Switchin on/off or changing the color, anything does. When the LivingColors component detects the command it will print the address to the logging console.
+Flash your ESP with the above example configuration YAML except for the button and light
+components. Control your LivingColors LED light with the LivingColors remote control, it doesn't
+realy matter in which way you control it. Switchin on/off or changing the color, anything does.
+When the LivingColors component detects the command it will print the address to the logging
+console.
 
 You can now use this address in the button and light components.
 
 ### Pairing the LivingColors LED light from the ESP
 
-This method is particularly useful if you don't have the remote control. Flash your ESP with the above example configuration YAML except for the light component, you can use any 8 byte address (16 character hexadecimal) for the button configuration, only the last 4 bytes really matter. Keep the ESP with CC2500 module close to the LivingColors LED light. When clicking the Pair LivingColors button the address will be printed to the logging console when pairing was successful.
+This method is particularly useful if you don't have the remote control. Flash your ESP with the
+above example configuration YAML except for the light component, you can use any 8 byte address (16
+character hexadecimal) for the button configuration, only the last 4 bytes really matter. Keep the
+ESP with CC2500 module close to the LivingColors LED light. When clicking the Pair LivingColors
+button the address will be printed to the logging console when pairing was successful.
 
 You can now use this address in the light component.
 
