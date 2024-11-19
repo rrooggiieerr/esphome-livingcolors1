@@ -70,13 +70,13 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length) {
 			success = true;
 	}
 
-	if(success)
-		return true;
+	if(!success) {
+		// If the address is not yet handled, log the address as detected
+		ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
+		ESP_LOGI(TAG, "  payload: 0x%06" PRIX64, payload);
+	}
 
-	// If the address is not yet handled, log the address as detected
-	ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
-	ESP_LOGI(TAG, "  payload: 0x%06" PRIX64, payload);
-	return false;
+	return true;
 }
 
 void LivingColors1Component::send(uint8_t *data, uint8_t length) {
