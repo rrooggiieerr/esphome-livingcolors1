@@ -48,8 +48,9 @@ The data needed to control the LivingColors LED light consist of a 14 byte packe
 ## ESPHome example configuration:
 
 To set up this LivingColors component you first need to place a top-level SPI and CC2500 component
-which defines the GPIO pins to use. If you connect and define the GDO2 pin you are also able to
-receive command from the LivingColors remote control.
+which defines the GPIO pins to use.
+
+Example YAML for Wemos C3 mini and CC2500 Shield:
 
 ```
 esphome:
@@ -68,8 +69,9 @@ external_components:
       # ref: 0.0.3
     components: [livingcolors1]
 
-esp8266:
-  board: nodemcu
+esp32:
+  board: lolin_c3_mini
+  variant: esp32c3
 
 # Enable logging
 logger:
@@ -89,13 +91,13 @@ wifi:
   password: !secret wifi_password
 
 spi:
-  clk_pin: GPIO14
-  mosi_pin: GPIO13
-  miso_pin: GPIO12
+  clk_pin: GPIO2
+  mosi_pin: GPIO4
+  miso_pin: GPIO3
 
 cc2500:
-  cs_pin: GPIO15
-  gdo2_pin: GPIO5
+  cs_pin: GPIO5
+  gdo2_pin: GPIO10
   output_power: 0xFF
 
 livingcolors1:
