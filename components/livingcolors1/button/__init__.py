@@ -26,22 +26,25 @@ LivingColors1UnpairButton = livingcolors1_ns.class_(
 #     "LivingColors1TestButton", cg.Component, button.Button
 # )
 
-CONFIG_SCHEMA = cv.Schema(
-    {
-        cv.Optional(CONF_PAIR_ACTION): button.button_schema(
-            LivingColors1PairButton,
-            entity_category=ENTITY_CATEGORY_CONFIG,
-        ),
-        cv.Optional(CONF_UNPAIR_ACTION): button.button_schema(
-            LivingColors1UnpairButton,
-            entity_category=ENTITY_CATEGORY_CONFIG,
-        ),
-        # cv.Optional(CONF_TEST_ACTION): button.button_schema(
-        #     LivingColors1TestButton,
-        #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
-        # ),
-    }
-).extend(LIVINGCOLORS1_DEVICE_SCHEMA)
+CONFIG_SCHEMA = cv.All(
+    cv.Schema(
+        {
+            cv.Optional(CONF_PAIR_ACTION): button.button_schema(
+                LivingColors1PairButton,
+                entity_category=ENTITY_CATEGORY_CONFIG,
+            ),
+            cv.Optional(CONF_UNPAIR_ACTION): button.button_schema(
+                LivingColors1UnpairButton,
+                entity_category=ENTITY_CATEGORY_CONFIG,
+            ),
+            # cv.Optional(CONF_TEST_ACTION): button.button_schema(
+            #     LivingColors1TestButton,
+            #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+            # ),
+        }
+    ).extend(LIVINGCOLORS1_DEVICE_SCHEMA),
+    cv.has_at_least_one_key(CONF_PAIR_ACTION, CONF_UNPAIR_ACTION),
+)
 
 
 async def to_code(config):
