@@ -19,6 +19,18 @@ Features:
 - Enable native color cycling light effect
 - Pair/unpair LivingColors LED light
 
+### Identifying a 1st generation LivingColors LED light
+
+This ESPHome component only works with the 1st generation of LivingColors LED lights, not with the
+2nd generation or later. A 1st generation can be recognised by the 4 LEDs (2 red, 1 green, 1 blue)
+and a power supply which gives 6 Volts. The 1st generation remote control is not marked as such.
+
+|      |1st generation|2nd generation|
+|-----:|:------------:|:------------:|
+|LEDs  |    4 LEDs    |    7 LEDs    |
+|Power |   5.6 Volt   |  18.5 Volt   |
+|Remote|  No marking  |     GEN2     |
+
 ## Hardware required
 
 - ESP8266, ESP32 or other ESPHome supported microcontroller
