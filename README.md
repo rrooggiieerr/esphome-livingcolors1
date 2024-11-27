@@ -10,8 +10,8 @@
 
 ## Introduction
 
-This [ESPHome External Component](https://esphome.io/components/external_components) can emulate the
-Philips LivingColors 1st generation LED light and accompanying remote control.
+This [ESPHome External Component](https://esphome.io/components/external_components) can emulate
+the Philips LivingColors 1st generation LED light and accompanying remote control.
 
 Features:
 - Sending commands to the LivingColors LED light
