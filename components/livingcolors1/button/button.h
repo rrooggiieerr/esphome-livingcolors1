@@ -3,7 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/core/helpers.h"
 #include "esphome/components/button/button.h"
-#include "esphome/components/livingcolors1/livingcolors1.h"
+#include "../livingcolors1.h"
 
 namespace esphome {
 namespace livingcolors1 {
