@@ -3,7 +3,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![Licence][license-shield]][license]
 [![Maintainer][maintainer-shield]][maintainer]  
-[![Github Sponsors][github-shield]][github]
+[![GitHub Sponsors][github-shield]][github]
 [![PayPal][paypal-shield]][paypal]
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 [![Patreon][patreon-shield]][patreon]
@@ -129,7 +129,7 @@ When a new LivingColors address is detected the address will be printed to the E
 
 Flash your ESP with the above example configuration YAML except for the button and light
 components. Control your LivingColors LED light with the LivingColors remote control, it doesn't
-realy matter in which way you control it. Switchin on/off or changing the color, anything does.
+really matter in which way you control it. Switching on/off or changing the color, anything does.
 When the LivingColors component detects the command it will print the address to the logging
 console.
 
@@ -150,7 +150,7 @@ You can now use this address in the light component.
 Do you enjoy using this ESPHome component? Then consider supporting my work using one of the
 following platforms, your donation is greatly appreciated and keeps me motivated:
 
-[![Github Sponsors][github-shield]][github]
+[![GitHub Sponsors][github-shield]][github]
 [![PayPal][paypal-shield]][paypal]
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 [![Patreon][patreon-shield]][patreon]
