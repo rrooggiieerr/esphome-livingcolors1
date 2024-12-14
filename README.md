@@ -36,17 +36,31 @@ and a power supply which gives 6 Volts. The 1st generation remote control is not
 - ESP8266, ESP32 or other ESPHome supported microcontroller
 - CC2500 transceiver module
 
-These need to be wired as described on
-[ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500).
+## Wiring
 
-The solderpads of the CC2500 transceiver is just a bit closer spaced than the width of a ribbon
+The solderpads of the CC2500 transceiver are just a bit closer spaced than the width of a ribbon
 cable, you need a steady hand to solder the wires.
 
 <img src="wiring3.jpg" width="33%"/>
 
-But I've created a shield that fits the Wemos Mini. Contact me if you like to buy one!
+But I've created a Wemos mini Shield that is tested with the D1 mini and C3 mini. Contact me if you
+like to buy one!
 
 <img src="Wemos CC2500 Shield A.jpg" width="33%"/>
+
+|     CC2500      | Wemos D1 mini | Wemos C3 mini |
+|                 |   Shield V2   |   Shield V2   |
+|:---------------:|:-------------:|:-------------:|
+|       GND       |      GND      |      GND      |
+|       VDD       |      3V3      |      3V3      |
+|       SI        |     GPIO13    |     GPIO4     |
+|      SCLK       |     GPIO14    |     GPIO2     |
+|       SO        |     GPIO12    |     GPIO3     |
+| GDO2 (interrupt)|     GPIO15    |     GPIO5     |
+|      GDO0       |       A0      |     GPIO0     |
+|       CSn       |     GPIO16    |     GPIO1     |
+
+For other configurations you can check the [ESPHome CC2500 component](https://github.com/rrooggiieerr/esphome-cc2500).
 
 ## LivingColors 1st generation commands
 
@@ -102,17 +116,41 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+```
 
+CC2500 settings for Wemos D1 mini and CC2500 Shield V2.0
+
+```
+spi:
+  clk_pin: GPIO14
+  mosi_pin: GPIO13
+  miso_pin: GPIO12
+
+cc2500:
+  cs_pin: GPIO16
+  gdo0_pin: A0
+  gdo2_pin: GPIO15 # Interrupt
+  output_power: 0xFF
+```
+
+SPI settings for Wemos C3 mini and CC2500 Shield V2.0
+
+```
 spi:
   clk_pin: GPIO2
   mosi_pin: GPIO4
   miso_pin: GPIO3
 
 cc2500:
-  cs_pin: GPIO5
-  gdo2_pin: GPIO10
+  cs_pin: GPIO1
+  gdo0_pin: GPIO0
+  gdo2_pin: GPIO5 # Interrupt
   output_power: 0xFF
+```
 
+LivingColors settings
+
+```
 livingcolors1:
 
 button:
