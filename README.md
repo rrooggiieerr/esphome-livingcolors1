@@ -23,7 +23,7 @@ Features:
 
 This ESPHome component only works with the 1st generation of LivingColors LED lights, not with the
 2nd generation or later. A 1st generation can be recognised by the 4 LEDs (2 red, 1 green, 1 blue)
-and a power supply which gives 6 Volts. The 1st generation remote control is not marked as such.
+and a power supply which gives 5.6 Volts. The 1st generation remote control is not marked as such.
 
 |      |1st generation|2nd generation|
 |-----:|:------------:|:------------:|
