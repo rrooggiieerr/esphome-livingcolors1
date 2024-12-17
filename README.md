@@ -50,8 +50,7 @@ like to buy one!
 
 <img src="Wemos CC2500 Shield A.jpg" width="33%"/>
 
-|     CC2500      | Wemos D1 mini | Wemos C3 mini |
-|                 |   Shield V2   |   Shield V2   |
+|     CC2500      |Wemos D1 mini<br/>Shield V1|Wemos C3 mini<br/>Shield V2|
 |:---------------:|:-------------:|:-------------:|
 |       GND       |      GND      |      GND      |
 |       VDD       |      3V3      |      3V3      |
