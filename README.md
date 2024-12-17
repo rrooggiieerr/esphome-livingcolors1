@@ -13,6 +13,8 @@
 This [ESPHome External Component](https://esphome.io/components/external_components) can emulate
 the Philips LivingColors 1st generation LED light and accompanying remote control.
 
+[![Watch the video](https://i3.ytimg.com/vi/AeJ-u4nzVQo/hqdefault.jpg)]([https://youtu.be/vt5fpE0bzSY](https://www.youtube.com/watch?v=AeJ-u4nzVQo))
+
 Features:
 - Sending commands to the LivingColors LED light
 - Receiving commands from LivingColors LED light and LivingColors remote control
@@ -72,7 +74,7 @@ The data needed to control the LivingColors LED light consist of a 14 byte packe
 - 1 byte serial number, increases by 1 on every transmit
 - 3 byte HSV color data
 
-## ESPHome example configuration:
+## ESPHome example configuration
 
 To set up this LivingColors component you first need to place a top-level SPI and CC2500 component
 which defines the GPIO pins to use.
