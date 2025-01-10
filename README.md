@@ -35,6 +35,7 @@ and a power supply which gives 5.6 Volts. The 1st generation remote control is n
 
 ## Hardware required
 
+- Philips LivingColors 1st generation LED light
 - ESP8266, ESP32 or other ESPHome supported microcontroller
 - CC2500 transceiver module
 
@@ -167,7 +168,6 @@ light:
     name: "LivingColors"
     address: 0x...
     restore_mode: RESTORE_DEFAULT_OFF
-
 ```
 
 ## Detecting the LivingColors address
@@ -195,6 +195,22 @@ ESP with CC2500 module close to the LivingColors LED light. When clicking the Pa
 button the address will be printed to the logging console when pairing was successful.
 
 You can now use this address in the light component.
+
+## Improve commmand receiption
+
+If your LivingColors LED light skips commands the distance between the light and the CC2500 module
+might be on the limit resulting in range issues. You can increasing the number of commands repeats
+the code sends by setting the `send_repeats` parameter of the `light` component. The default number
+of repeats is 7, just like the LivingColors remote is sending.
+
+```
+light:
+  - platform: livingcolors1
+    name: "LivingColors"
+    address: 0x...
+    send_repeats: 15
+    restore_mode: RESTORE_DEFAULT_OFF
+```
 
 ## Support my work
 
