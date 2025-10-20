@@ -41,7 +41,7 @@ and a power supply which gives 5.6 Volts. The 1st generation remote control is n
 
 ## Wiring
 
-The solderpads of the CC2500 transceiver are just a bit closer spaced than the width of a ribbon
+The solder pads of the CC2500 transceiver are just a bit closer spaced than the width of a ribbon
 cable, you need a steady hand to solder the wires.
 
 <img src="wiring3.jpg" width="33%"/>
@@ -66,7 +66,7 @@ For other configurations you can check the [ESPHome CC2500 component](https://gi
 
 ## LivingColors 1st generation commands
 
-The data needed to control the LivingColors LED light consist of a 14 byte packet which contains:
+The data needed to control the LivingColors LED light consists of a 14 byte packet which contains:
 - 4 byte light address
 - 4 byte remote address
 - 1 byte fixed value, always 0x11
@@ -76,7 +76,7 @@ The data needed to control the LivingColors LED light consist of a 14 byte packe
 
 ## ESPHome example configuration
 
-To set up this LivingColors component you first need to place a top-level SPI and CC2500 component
+To set up this LivingColors component, you first need to place a top-level SPI and CC2500 component
 which defines the GPIO pins to use.
 
 Example YAML for Wemos C3 mini and CC2500 shield:
@@ -174,7 +174,7 @@ light:
 
 There are two ways to detect the address needed to send and receive LivingColors commands. In both
 cases you need to enable info loglevel in your ESPHome configuration and keep the log console open.
-When a new LivingColors address is detected the address will be printed to the ESPHome console.
+When a new LivingColors address is detected, the address will be printed to the ESPHome console.
 
 ### Use the LivingColors remote control
 
@@ -192,14 +192,14 @@ This method is particularly useful if you don't have the remote control. Flash y
 above example configuration YAML except for the light component, you can use any 8 byte address (16
 character hexadecimal) for the button configuration, only the last 4 bytes really matter. Keep the
 ESP with CC2500 module close to the LivingColors LED light. When clicking the Pair LivingColors
-button the address will be printed to the logging console when pairing was successful.
+button the address will be printed to the logging console when pairing is successful.
 
 You can now use this address in the light component.
 
-## Improve commmand receiption
+## Improve command reception
 
 If your LivingColors LED light skips commands the distance between the light and the CC2500 module
-might be on the limit resulting in range issues. You can increasing the number of commands repeats
+might be on the limit resulting in range issues. You can increase the number of commands repeats
 the code sends by setting the `send_repeats` parameter of the `light` component. The default number
 of repeats is 7, just like the LivingColors remote is sending.
 
@@ -212,9 +212,18 @@ light:
     restore_mode: RESTORE_DEFAULT_OFF
 ```
 
-## Support my work
+## Contribution and appreciation
 
-Do you enjoy using this ESPHome component? Then consider supporting my work using one of the
+You can contribute to this component, or show your appreciation, in the following ways.
+
+### Star this external component
+
+Help other ESPHome and Philips LivingColors 1st generation users find this external component by
+starring this GitHub page. Click **⭐ Star** on the top right of the GitHub page.
+
+### Support my work
+
+Do you enjoy using this ESPHome component? Please consider supporting my work through one of the
 following platforms, your donation is greatly appreciated and keeps me motivated:
 
 [![GitHub Sponsors][github-shield]][github]
@@ -222,10 +231,24 @@ following platforms, your donation is greatly appreciated and keeps me motivated
 [![BuyMeCoffee][buymecoffee-shield]][buymecoffee]
 [![Patreon][patreon-shield]][patreon]
 
-## Hire me
+### ESPHome support
 
-If you're in need for a freelance ESP developer for your project please contact me, you can find my
-email address on [my GitHub profile](https://github.com/rrooggiieerr).
+[Book a one-hour ESPHome support session](https://buymeacoffee.com/rrooggiieerr/e/470127). I’ll
+help you troubleshoot your ESPHome setup or answer your ESPHome-related questions.
+
+What can be done in one hour:
+- ESPHome walktrough, I explain to you how ESPHome works
+- Assistance setting up your ESP device
+- Install and configure an ESPHome (External) Component
+
+What takes more time:
+- Support for ESPHome Component developers
+
+### Hire me
+
+If you would like to have an ESPHome component developed for your product or are in need for a
+freelance ESP developer for your project please contact me, you can find my email address on
+[my GitHub profile](https://github.com/rrooggiieerr).
 
 [releases]: https://github.com/rrooggiieerr/esphome-livingcolors1/releases
 [releases-shield]: https://img.shields.io/github/v/release/rrooggiieerr/esphome-livingcolors1?style=for-the-badge
