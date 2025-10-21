@@ -8,7 +8,7 @@
 namespace esphome {
 namespace livingcolors1 {
 
-static const char *TAG = "livingcolors1";
+static const char *const TAG = "livingcolors1";
 
 void LivingColors1Component::setup() {
 	ESP_LOGCONFIG(TAG, "Setting up Living Colors 1st generation component...");
