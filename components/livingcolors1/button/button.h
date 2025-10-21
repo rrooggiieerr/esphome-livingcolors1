@@ -12,7 +12,6 @@ class LivingColors1ButtonComponent: public LivingColors1ClientComponent, public 
 public:
 	void setup() override;
 	void dump_config() override;
-	bool receive(uint64_t address, uint8_t *data, uint8_t length) { return false; };
 
 protected:
 };
