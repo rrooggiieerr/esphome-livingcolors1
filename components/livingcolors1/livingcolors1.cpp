@@ -84,6 +84,12 @@ void LivingColors1Component::send(uint8_t *data, uint8_t length) {
 	((CC2500Device*)this)->send(data, length);
 }
 
+LivingColors1ClientComponent::LivingColors1ClientComponent() {
+    std::string mac_address = get_mac_address();
+    std::string address = "FFFFFFFF" + mac_address.substr(mac_address.length() - 8, 8);
+    this->address_ = std::strtoull(address.c_str(), nullptr, 16);
+}
+
 void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
 	this->parent_ = parent;
 	this->parent_->add_device(this);

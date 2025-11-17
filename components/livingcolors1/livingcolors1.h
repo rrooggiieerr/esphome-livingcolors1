@@ -40,6 +40,7 @@ protected:
 
 class LivingColors1ClientComponent: public Component {
 public:
+	LivingColors1ClientComponent();
 	void set_parent(LivingColors1Component *parent);
 	void set_address(uint64_t address) {
 		this->address_ = address;

@@ -4,6 +4,7 @@ from esphome.components import button
 from esphome.const import ENTITY_CATEGORY_CONFIG, ENTITY_CATEGORY_DIAGNOSTIC
 
 from .. import (
+    CONF_ADDRESS,
     LIVINGCOLORS1_DEVICE_SCHEMA,
     livingcolors1_ns,
     register_livingcolors1_device,
@@ -27,8 +28,9 @@ LivingColors1UnpairButton = livingcolors1_ns.class_(
 # )
 
 CONFIG_SCHEMA = cv.All(
-    cv.Schema(
+    LIVINGCOLORS1_DEVICE_SCHEMA.extend(
         {
+            cv.Optional(CONF_ADDRESS): cv.hex_uint64_t,
             cv.Optional(CONF_PAIR_ACTION): button.button_schema(
                 LivingColors1PairButton,
                 entity_category=ENTITY_CATEGORY_CONFIG,
@@ -42,7 +44,7 @@ CONFIG_SCHEMA = cv.All(
             #     entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
             # ),
         }
-    ).extend(LIVINGCOLORS1_DEVICE_SCHEMA),
+    ),
     cv.has_at_least_one_key(CONF_PAIR_ACTION, CONF_UNPAIR_ACTION),
 )
 

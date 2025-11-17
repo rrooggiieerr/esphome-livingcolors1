@@ -33,7 +33,6 @@ async def to_code(config):
     await cc2500.register_cc2500_device(var, config)
 
 
-# A schema to use for all CC2500 devices, all CC2500 integrations must extend this!
 LIVINGCOLORS1_DEVICE_SCHEMA = cv.Schema(
     {
         cv.GenerateID(CONF_LIVINGCOLORS1_ID): cv.use_id(LivingColors1Component),
@@ -46,6 +45,7 @@ LIVINGCOLORS1_DEVICE_SCHEMA = cv.Schema(
 async def register_livingcolors1_device(var, config):
     parent = await cg.get_variable(config[CONF_LIVINGCOLORS1_ID])
     cg.add(var.set_parent(parent))
-    cg.add(var.set_address(config[CONF_ADDRESS]))
+    if CONF_ADDRESS in config:
+        cg.add(var.set_address(config[CONF_ADDRESS]))
     if CONF_SEND_REPEATS in config:
         cg.add(var.set_send_repeats(config[CONF_SEND_REPEATS]))

@@ -53,7 +53,7 @@ bool LivingColors1PairButton::receive(uint64_t address, uint8_t *data, uint8_t l
 }
 
 void LivingColors1UnpairButton::press_action() {
-	ESP_LOGV(TAG, "Pair Button press for address 0x%016" PRIX64, this->special_address_());
+	ESP_LOGV(TAG, "Unpair Button press for address 0x%016" PRIX64, this->special_address_());
 
 	uint8_t data[5];
 
