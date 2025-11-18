@@ -157,7 +157,6 @@ livingcolors1:
 
 button:
   - platform: livingcolors1
-    address: 0x...
     pair:
       name: "Pair LivingColors"
     unpair:
@@ -189,10 +188,9 @@ You can now use this address in the button and light components.
 ### Pairing the LivingColors LED light from the ESP
 
 This method is particularly useful if you don't have the remote control. Flash your ESP with the
-above example configuration YAML except for the light component, you can use any 8 byte address (16
-character hexadecimal) for the button configuration, only the last 4 bytes really matter. Keep the
-ESP with CC2500 module close to the LivingColors LED light. When clicking the Pair LivingColors
-button the address will be printed to the logging console when pairing is successful.
+above example configuration YAML except for the light component. Keep the ESP with CC2500 module
+close to the LivingColors LED light. When clicking the Pair LivingColors button the address will be
+printed to the logging console when pairing is successful.
 
 You can now use this address in the light component.
 
