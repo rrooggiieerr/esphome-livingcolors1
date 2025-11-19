@@ -28,7 +28,7 @@ public:
 	void setup() override;
 
 //	void dump_config() override;
-	bool receive(uint8_t *data, uint8_t length) override;
+	bool receive(uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) override;
 
 	void add_device(LivingColors1ClientComponent *device) { this->devices_.push_back(device); }
 	void send(uint8_t *data, uint8_t length);
@@ -50,6 +50,9 @@ public:
 	}
 	void send(uint8_t *data, uint8_t length) {
 		this->send_(this->address_, &data[0], length);
+	}
+	virtual bool receive(uint64_t address, uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) {
+		return this->receive(address, data, length);
 	}
 	virtual bool receive(uint64_t address, uint8_t *data, uint8_t length) {
 		return false;
