@@ -17,6 +17,9 @@ CONF_PAIR_ACTION = "pair"
 CONF_UNPAIR_ACTION = "unpair"
 # CONF_TEST_ACTION = "test"
 
+LivingColors1ButtonsComponent = livingcolors1_ns.class_(
+    "LivingColors1ButtonComponent", cg.Component, button.Button
+)
 LivingColors1PairButton = livingcolors1_ns.class_(
     "LivingColors1PairButton", cg.Component, button.Button
 )
@@ -30,6 +33,7 @@ LivingColors1UnpairButton = livingcolors1_ns.class_(
 CONFIG_SCHEMA = cv.All(
     LIVINGCOLORS1_DEVICE_SCHEMA.extend(
         {
+            cv.GenerateID(): cv.declare_id(LivingColors1ButtonsComponent),
             cv.Optional(CONF_ADDRESS): cv.hex_uint64_t,
             cv.Optional(CONF_PAIR_ACTION): button.button_schema(
                 LivingColors1PairButton,
