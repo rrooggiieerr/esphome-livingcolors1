@@ -1,0 +1,18 @@
+# These substitutions allow the end user to override certain values
+substitutions:
+  name: "livingcolors1"
+  friendly_name: "LivingColors"
+
+packages:
+  core: !include c3miniv1.yaml
+  # CC2500 Shield V1.0 on Wemos C3 mini V1.0.0
+  cc2500: github://rrooggiieerr/esphome-cc2500/cc2500-shieldv1-c3miniv1.yaml@master
+  livingcolors1: !include livingcolors1.yaml
+
+esphome:
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+  comment: "Philips LivingColors 1st generation"
+  # Automatically add the mac address to the name
+  # so you can use a single firmware for all devices
+  name_add_mac_suffix: true

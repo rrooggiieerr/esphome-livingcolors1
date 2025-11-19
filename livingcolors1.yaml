@@ -1,0 +1,24 @@
+external_components:
+  - source: github://rrooggiieerr/esphome-livingcolors1@master
+    components: [livingcolors1]
+
+livingcolors1:
+
+button:
+  - platform: livingcolors1
+    pair:
+      id: livingcolors1_pair_button
+      name: "Pair LivingColors"
+    unpair:
+      id: livingcolors1_unpair_button
+      name: "Unpair LivingColors"
+
+binary_sensor:
+  - id: !extend boot_button
+    filters:
+      - delayed_on: 50ms 
+    on_multi_click:
+      - timing:
+          - ON for at least 3s 
+        then:
+          - button.press: livingcolors1_pair_button

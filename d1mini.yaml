@@ -1,0 +1,50 @@
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+# OTA is required for Over-the-Air updating
+ota:
+  - platform: esphome
+    id: ota_esphome
+
+wifi:
+  # Set up a wifi access point using the device name above
+  ap:
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device.
+captive_portal:
+
+light:
+  - platform: status_led
+    id: _status_led
+    name: "Status"
+    pin:
+      number: GPIO2
+      inverted: True
+    # internal: True
+
+binary_sensor:
+  - platform: gpio
+    id: boot_button
+    pin:
+      number: GPIO0
+      mode:
+        input: True
+        pullup: True
+      inverted: True
+    internal: True
+
+sensor:
+  # Diagnostic sensors
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    id: wifi_signal_db
+    update_interval: 5s
+    entity_category: diagnostic
+    disabled_by_default: True

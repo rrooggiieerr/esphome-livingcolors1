@@ -1,0 +1,59 @@
+esp32:
+  board: lolin_c3_mini
+  # variant: esp32c3
+  framework:
+    type: esp-idf
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+# OTA is required for Over-the-Air updating
+ota:
+  - platform: esphome
+    id: ota_esphome
+
+wifi:
+  # Enable for Wemos C3 mini v2.1.0
+  output_power: 8.5
+
+    # Set up a wifi access point using the device name above
+  ap:
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device.
+captive_portal:
+
+light:
+  # Wemos C3 mini v2.1.0 uses an RGB LED
+  - platform: esp32_rmt_led_strip
+    id: _status_led
+    name: "Status"
+    rgb_order: GRB
+    pin: GPIO7
+    num_leds: 1
+    chipset: ws2812
+    # internal: True
+
+binary_sensor:
+  - platform: gpio
+    id: boot_button
+    pin:
+      number: GPIO9
+      mode:
+        input: True
+        pullup: True
+      inverted: True
+      ignore_strapping_warning: True
+    internal: True
+
+sensor:
+  # Diagnostic sensors
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    id: wifi_signal_db
+    update_interval: 5s
+    entity_category: diagnostic
+    disabled_by_default: True
