@@ -27,7 +27,7 @@ light:
     pin:
       number: GPIO2
       inverted: True
-    # internal: True
+    internal: True
 
 binary_sensor:
   - platform: gpio
