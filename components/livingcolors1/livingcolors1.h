@@ -69,7 +69,7 @@ protected:
 
 	void send_(uint64_t address, uint8_t *data, uint8_t length);
 	void send_();
-	uint64_t swapped_address_() { return ((0x00000000FFFFFFFF & this->address_)<< 32) | ((0xFFFFFFFF00000000 & this->address_) >> 32); }
+	uint64_t swapped_address_() { return ((0x00000000FFFFFFFF & this->address_) << 32) | ((0xFFFFFFFF00000000 & this->address_) >> 32); }
 	uint64_t special_address_() { return 0xFFFFFFFF00000000 | (0x00000000FFFFFFFF & this->address_); }
 	bool is_address_(uint64_t address) { return address == this->address_; }
 	// A response has the light address and remote address swapped.
