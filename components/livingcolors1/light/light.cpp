@@ -22,9 +22,7 @@ void LivingColors1Light::setup_state(light::LightState *state) {
 	state_ = state;
 	state_->set_gamma_correct(0);
 	state_->set_default_transition_length(0);
-	std::vector<light::LightEffect *> effects;
-	effects.push_back(new LivingColors1CycleLightEffect());
-	state_->add_effects(effects);
+	state_->add_effects({new LivingColors1CycleLightEffect()});
 }
 
 void LivingColors1Light::write_state(light::LightState *state) {
