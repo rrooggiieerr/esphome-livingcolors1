@@ -6,12 +6,14 @@ livingcolors1:
 
 button:
   - platform: livingcolors1
+    id: livingcolors1_buttons
     pair:
       id: livingcolors1_pair_button
       name: "Pair LivingColors"
     unpair:
       id: livingcolors1_unpair_button
       name: "Unpair LivingColors"
+      disabled_by_default: True
 
 binary_sensor:
   - id: !extend boot_button
