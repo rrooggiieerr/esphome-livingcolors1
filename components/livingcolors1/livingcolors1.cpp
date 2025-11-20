@@ -74,7 +74,10 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, uint8_t rssi
 		// If the address is not yet handled, log the address as detected
 		ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
 	}
-
+	if(!success && command == Command::PAIRING_RESPONSE) {
+		// If the address is a pairing response swap the light and remote address parts and show as detected address
+		ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, ((0x00000000FFFFFFFF & address) << 32) | ((0xFFFFFFFF00000000 & address) >> 32));
+	}
 	return true;
 }
 
