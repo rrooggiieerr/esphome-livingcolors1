@@ -82,8 +82,10 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, 
 }
 
 void LivingColors1Component::send(uint8_t *data, uint8_t length) {
+	uint8_t data_copy[length];
 	data[11] = this->serial_number_++;
-	((CC2500Device*)this)->send(data, length);
+	memcpy(data_copy, data, length);
+	((CC2500Device*)this)->send(data_copy, length);
 }
 
 LivingColors1ClientComponent::LivingColors1ClientComponent() {
