@@ -41,6 +41,7 @@ protected:
 class LivingColors1ClientComponent: public Component {
 public:
 	LivingColors1ClientComponent();
+	void loop() override;
 	void set_parent(LivingColors1Component *parent);
 	void set_address(uint64_t address) {
 		this->address_ = address;
@@ -62,8 +63,12 @@ protected:
 	LivingColors1Component *parent_ { nullptr };
 	uint64_t address_;
 	uint16_t send_repeats_ = 7;
+	uint16_t send_repeat_counter_ = 0;
+	uint8_t *send_data_ = nullptr;
+	uint8_t send_data_length_ = 0;
 
 	void send_(uint64_t address, uint8_t *data, uint8_t length);
+	void send_();
 	uint64_t swapped_address_() { return ((0x00000000FFFFFFFF & this->address_)<< 32) | ((0xFFFFFFFF00000000 & this->address_) >> 32); }
 	uint64_t special_address_() { return 0xFFFFFFFF00000000 | (0x00000000FFFFFFFF & this->address_); }
 	bool is_address_(uint64_t address) { return address == this->address_; }

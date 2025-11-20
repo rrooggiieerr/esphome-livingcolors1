@@ -92,6 +92,15 @@ LivingColors1ClientComponent::LivingColors1ClientComponent() {
     this->address_ = std::strtoull(address.c_str(), nullptr, 16);
 }
 
+void LivingColors1ClientComponent::loop() {
+	if(this->send_data_ != nullptr) {
+		if(this->send_repeat_counter_ > 0)
+			esphome::delay(14);
+
+		this->send_();
+	}
+}
+
 void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
 	this->parent_ = parent;
 	this->parent_->add_device(this);
@@ -121,10 +130,24 @@ void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_
 	for(int j = 0; j < length; j++)
 		data_[10+j] = data[j];
 
-	for (int i = 0; i < this->send_repeats_; i++) {
-		if(i > 0)
-			esphome::delay(14);
-		this->parent_->send(&data_[0], length_);
+	this->send_data_ = data_;
+	this->send_data_length_ = length_;
+	this->send_repeat_counter_ = 0;
+
+	this->send_();
+}
+
+void LivingColors1ClientComponent::send_() {
+	if(this->send_repeat_counter_ < this->send_repeats_) {
+		ESP_LOGD(TAG, "Sending...");
+		this->parent_->send(this->send_data_, this->send_data_length_);
+		this->send_repeat_counter_++;
+	}
+
+	if(this->send_repeat_counter_ >= this->send_repeats_) {
+		ESP_LOGD(TAG, "Finished sending...");
+		this->send_data_ = nullptr;
+		this->send_data_length_ = 0;
 	}
 }
 
