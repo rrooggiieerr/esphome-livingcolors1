@@ -36,11 +36,13 @@ CONFIG_SCHEMA = cv.All(
                 unit_of_measurement=UNIT_DECIBEL_MILLIWATT,
                 state_class=STATE_CLASS_MEASUREMENT,
                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+                accuracy_decimals=1,
             ),
             cv.Optional(CONF_LQI_VALUE): sensor.sensor_schema(
                 LivingColors1LQISensor,
                 state_class=STATE_CLASS_MEASUREMENT,
                 entity_category=ENTITY_CATEGORY_DIAGNOSTIC,
+                accuracy_decimals=0,
             ),
         },
     ).extend(LIVINGCOLORS1_DEVICE_SCHEMA),

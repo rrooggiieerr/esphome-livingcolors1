@@ -21,7 +21,7 @@ void LivingColors1Component::setup() {
 	((CC2500Device*)this)->send(data, 15);
 }
 
-bool LivingColors1Component::receive(uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) {
+bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, uint8_t lqi) {
 	ESP_LOGV(TAG, "LivingColors1Component::receive");
 	// Validate data length, 17 bytes
 	if(length != 17) {

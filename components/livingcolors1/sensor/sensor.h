@@ -18,12 +18,12 @@ public:
 
 class LivingColors1RSSISensor: public LivingColors1Sensor {
 public:
-	bool receive(uint64_t address, uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) override;
+	bool receive(uint64_t address, uint8_t *data, uint8_t length, float rssi, uint8_t lqi) override;
 };
 
 class LivingColors1LQISensor: public LivingColors1Sensor {
 public:
-	bool receive(uint64_t address, uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) override;
+	bool receive(uint64_t address, uint8_t *data, uint8_t length, float rssi, uint8_t lqi) override;
 };
 
 }  // namespace livingcolors1

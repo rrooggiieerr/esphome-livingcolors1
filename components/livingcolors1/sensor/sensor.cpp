@@ -17,7 +17,7 @@ void LivingColors1Sensor::dump_config() {
 	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
 }
 
-bool LivingColors1RSSISensor::receive(uint64_t address, uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) {
+bool LivingColors1RSSISensor::receive(uint64_t address, uint8_t *data, uint8_t length, float rssi, uint8_t lqi) {
 	if(this->is_response_(address)) {
 		ESP_LOGD(TAG, "RSSI: %d", rssi);
 		this->publish_state(rssi);
@@ -28,7 +28,7 @@ bool LivingColors1RSSISensor::receive(uint64_t address, uint8_t *data, uint8_t l
 	return false;
 }
 
-bool LivingColors1LQISensor::receive(uint64_t address, uint8_t *data, uint8_t length, uint8_t rssi, uint8_t lqi) {
+bool LivingColors1LQISensor::receive(uint64_t address, uint8_t *data, uint8_t length, float rssi, uint8_t lqi) {
 	if(this->is_response_(address)) {
 		ESP_LOGD(TAG, "LQI: %d", lqi);
 		this->publish_state(lqi);
