@@ -22,7 +22,12 @@ jobs:
       matrix:
         #### Modify below here to match your project ####
         file:
-          - axa-remote-pcb
+          - livingcolors1-cc2500-shieldv1-d1mini
+          - livingcolors1-cc2500-shieldv1-c3miniv1
+          - livingcolors1-cc2500-shieldv1-c3miniv2
+          - livingcolors1-cc2500-shieldv2-d1mini
+          - livingcolors1-cc2500-shieldv2-c3miniv1
+          - livingcolors1-cc2500-shieldv2-c3miniv2
         #### Modify above here to match your project ####
 
         esphome-version:
