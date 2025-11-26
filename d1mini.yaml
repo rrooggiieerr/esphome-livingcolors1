@@ -15,13 +15,6 @@ ota:
 wifi:
   min_auth_mode: WPA2
 
-  # Set up a wifi access point using the device name above
-  ap:
-
-# In combination with the `ap` this allows the user
-# to provision wifi credentials to the device.
-captive_portal:
-
 light:
   - platform: status_led
     id: _status_led

@@ -10,6 +10,14 @@ esphome:
     name: rrooggiieerr.livingcolors1-cc2500-shieldv1-c3miniv1
     version: dev # This will be replaced by the github workflows with the `release` version
 
+wifi:
+  # Set up a wifi access point using the device name above
+  ap:
+
+# In combination with the `ap` this allows the user
+# to provision wifi credentials to the device.
+captive_portal:
+
 # This points to the public location of the yaml file that will be adopted.
 # In this case it is the core yaml file that does not contain the extra things
 # that are provided by this factory yaml file as the user does not need these once adopted.
