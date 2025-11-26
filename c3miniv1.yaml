@@ -19,7 +19,7 @@ wifi:
   # Enable for Wemos C3 mini v1.0.0
   output_power: 8.5
 
-    # Set up a wifi access point using the device name above
+  # Set up a wifi access point using the device name above
   ap:
 
 # In combination with the `ap` this allows the user
