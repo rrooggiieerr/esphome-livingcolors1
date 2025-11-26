@@ -13,6 +13,8 @@ ota:
     id: ota_esphome
 
 wifi:
+  min_auth_mode: WPA2
+
   # Set up a wifi access point using the device name above
   ap:
 
