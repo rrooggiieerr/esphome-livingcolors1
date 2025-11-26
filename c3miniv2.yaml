@@ -48,12 +48,3 @@ binary_sensor:
       inverted: True
       ignore_strapping_warning: True
     internal: True
-
-sensor:
-  # Diagnostic sensors
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    id: wifi_signal_db
-    update_interval: 5s
-    entity_category: diagnostic
-    disabled_by_default: True
