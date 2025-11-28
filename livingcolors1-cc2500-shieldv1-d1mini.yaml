@@ -6,7 +6,7 @@ substitutions:
 packages:
   core: !include d1mini.yaml
   # CC2500 Shield V1.0 on Wemos D1 mini
-  cc2500: github://rrooggiieerr/esphome-cc2500/cc2500-shieldv1-d1mini.yaml@master
+  cc2500: github://rrooggiieerr/esphome-cc2500/cc2500-shieldv1-d1mini.yaml@main
   livingcolors1: !include livingcolors1.yaml
 
 esphome:
