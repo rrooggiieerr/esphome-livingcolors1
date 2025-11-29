@@ -10,10 +10,6 @@ esphome:
     name: rrooggiieerr.livingcolors1-cc2500-shieldv2-c3miniv1
     version: dev # This will be replaced by the github workflows with the `release` version
 
-wifi:
-  # Set up a wifi access point using the device name above
-  ap:
-
 # In combination with the `ap` this allows the user
 # to provision wifi credentials to the device.
 captive_portal:
