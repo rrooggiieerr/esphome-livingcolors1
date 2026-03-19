@@ -39,7 +39,7 @@ void LivingColors1Light::write_state(light::LightState *state) {
 	uint8_t hue, saturation, value;
 	if (brightness > 0.0) {
 		float red, green, blue;
-		state->current_values_as_rgb(&red, &green, &blue, false);
+		state->current_values_as_rgb(&red, &green, &blue);
 
 		int _hue;
 		float _saturation, _value;
@@ -180,7 +180,7 @@ void LivingColors1CycleLightEffect::apply() {
 		Command command;
 		uint8_t hue, saturation, value;
 		float red, green, blue;
-		this->state_->current_values_as_rgb(&red, &green, &blue, false);
+		this->state_->current_values_as_rgb(&red, &green, &blue);
 
 		int _hue;
 		float _saturation, _value;
