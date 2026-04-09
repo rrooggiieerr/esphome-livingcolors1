@@ -41,4 +41,4 @@ update:
   - platform: http_request
     name: None
     id: update_http_request
-    source: https://github.com/rrooggiieerr/esphome-livingcolors1/releases/latest/download/livingcolors1-cc2500-shieldv2-c3miniv1.manifest.json
+    source: https://rrooggiieerr.github.io/esphome-livingcolors1/firmware/livingcolors1-cc2500-shieldv2-c3miniv1.manifest.json
