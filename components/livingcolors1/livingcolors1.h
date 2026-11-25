@@ -64,6 +64,9 @@ protected:
 	uint64_t address_;
 	uint16_t send_repeats_ = 7;
 	uint16_t send_repeat_counter_ = 0;
+	// Persistent transmit buffer: send_() keeps a pointer to the packet for the
+	// repeats sent from loop(), so it must outlive the send_(address, ...) call.
+	uint8_t send_buffer_[32];
 	uint8_t *send_data_ = nullptr;
 	uint8_t send_data_length_ = 0;
 
