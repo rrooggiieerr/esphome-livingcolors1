@@ -110,7 +110,13 @@ void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
 
 void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_t length) {
 	uint8_t length_ = 10 + length;
-	uint8_t data_[length_];
+	if (length_ > sizeof(this->send_buffer_)) {
+		ESP_LOGE(TAG, "Packet too long (%u bytes), not sending", length_);
+		return;
+	}
+	// Build the packet in the member buffer instead of a stack array: the repeats
+	// are sent later from loop(), after this function has returned.
+	uint8_t *data_ = this->send_buffer_;
 
 	// Packet length
 	data_[0] = 10 + length - 1;
