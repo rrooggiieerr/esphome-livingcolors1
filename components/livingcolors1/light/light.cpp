@@ -214,7 +214,7 @@ void LivingColors1CycleLightEffect::apply() {
     output->send(&data[0], 5);
 
     data[0] = (uint8_t) Command::CYCLE;
-    output->send(&data[0], 5);
+    output->send(&data[0], 5, true);
 
     this->applied_ = true;
   }

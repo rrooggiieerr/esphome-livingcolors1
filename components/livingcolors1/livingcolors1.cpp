@@ -12,6 +12,12 @@ namespace livingcolors1 {
 
 static const char *const TAG = "livingcolors1";
 
+// Commands the lamp acknowledges with the command code + 1
+static bool expects_acknowledgement(uint8_t command) {
+  return command == (uint8_t) Command::HSV || command == (uint8_t) Command::ON || command == (uint8_t) Command::OFF ||
+         command == (uint8_t) Command::CYCLE;
+}
+
 void LivingColors1Component::setup() {
   ESP_LOGCONFIG(TAG, "Setting up Living Colors 1st generation component...");
 
@@ -65,6 +71,9 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, 
   uint8_t serial_number = data[11];
   ESP_LOGV(TAG, "serial number: %d", serial_number);
 
+  for (auto device : this->devices_)
+    device->check_acknowledgement(address, command);
+
   // Check if the address is handled by a device
   bool success = false;
   for (auto device : this->devices_) {
@@ -116,7 +125,7 @@ LivingColors1ClientComponent::LivingColors1ClientComponent() {
 }
 
 void LivingColors1ClientComponent::loop() {
-  if (this->send_data_ != nullptr) {
+  if (this->send_queue_length_ > 0) {
     if (this->send_repeat_counter_ > 0)
       esphome::delay(14);
 
@@ -129,15 +138,21 @@ void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
   this->parent_->add_device(this);
 }
 
-void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_t length) {
+void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_t length, bool append) {
   uint8_t length_ = 10 + length;
-  if (length_ > sizeof(this->send_buffer_)) {
+  if (length_ > sizeof(SendPacket::data)) {
     ESP_LOGE(TAG, "Packet too long (%u bytes), not sending", length_);
     return;
   }
-  // Build the packet in the member buffer instead of a stack array: the repeats
-  // are sent later from loop(), after this function has returned.
-  uint8_t *data_ = this->send_buffer_;
+  // A new command replaces pending ones, unless it's appended
+  if (!append)
+    this->send_queue_length_ = 0;
+  if (this->send_queue_length_ >= SEND_QUEUE_SIZE) {
+    ESP_LOGW(TAG, "Send queue full, dropping command");
+    return;
+  }
+  SendPacket &packet = this->send_queue_[this->send_queue_length_];
+  uint8_t *data_ = packet.data;
 
   // Packet length
   data_[0] = 10 + length - 1;
@@ -159,25 +174,58 @@ void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_
   for (int j = 0; j < length; j++)
     data_[10 + j] = data[j];
 
-  this->send_data_ = data_;
-  this->send_data_length_ = length_;
-  this->send_repeat_counter_ = 0;
+  packet.length = length_;
+  this->send_queue_length_++;
 
-  this->send_();
+  // Start right away when nothing else is being repeated
+  if (this->send_queue_length_ == 1) {
+    this->send_repeat_counter_ = 0;
+    this->send_();
+  }
 }
 
 void LivingColors1ClientComponent::send_() {
+  if (this->send_queue_length_ == 0)
+    return;
+
   if (this->send_repeat_counter_ < this->send_repeats_) {
     ESP_LOGD(TAG, "Sending...");
-    this->parent_->send(this->send_data_, this->send_data_length_);
+    this->parent_->send(this->send_queue_[0].data, this->send_queue_[0].length);
     this->send_repeat_counter_++;
   }
 
   if (this->send_repeat_counter_ >= this->send_repeats_) {
-    ESP_LOGD(TAG, "Finished sending...");
-    this->send_data_ = nullptr;
-    this->send_data_length_ = 0;
+    uint8_t command = this->send_queue_[0].data[10];
+    if (expects_acknowledgement(command))
+      ESP_LOGW(TAG, "No acknowledgement for command 0x%02X", command);
+    else
+      ESP_LOGD(TAG, "Finished sending...");
+    this->next_packet_();
   }
+}
+
+void LivingColors1ClientComponent::next_packet_() {
+  for (uint8_t i = 1; i < this->send_queue_length_; i++)
+    this->send_queue_[i - 1] = this->send_queue_[i];
+  this->send_queue_length_--;
+  this->send_repeat_counter_ = 0;
+}
+
+void LivingColors1ClientComponent::check_acknowledgement(uint64_t address, Command command) {
+  if (this->send_queue_length_ == 0 || this->send_repeat_counter_ == 0)
+    return;
+  const uint8_t *data = this->send_queue_[0].data;
+  uint8_t sent = data[10];
+  if (!expects_acknowledgement(sent) || (uint8_t) command != sent + 1)
+    return;
+  // The acknowledgement has the lamp and remote halves of the address swapped
+  uint64_t sent_address = 0;
+  for (int i = 1; i <= 8; i++)
+    sent_address = (sent_address << 8) | data[i];
+  if (address != ((sent_address << 32) | (sent_address >> 32)))
+    return;
+  ESP_LOGD(TAG, "Acknowledged after %u sends", this->send_repeat_counter_);
+  this->next_packet_();
 }
 
 }  // namespace livingcolors1

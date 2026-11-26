@@ -24,6 +24,8 @@ enum class Command : uint8_t {
 class LivingColors1ClientComponent;
 
 static const size_t MAX_DETECTED_ADDRESSES = 16;
+// Packets a client can have queued for sending, e.g. ON followed by CYCLE
+static const uint8_t SEND_QUEUE_SIZE = 2;
 
 class LivingColors1Component : public Component, public cc2500::CC2500Device<0, 3, 14> {
  public:
@@ -51,7 +53,10 @@ class LivingColors1ClientComponent : public Component {
   void set_parent(LivingColors1Component *parent);
   void set_address(uint64_t address) { this->address_ = address; }
   void set_send_repeats(uint16_t n_times) { this->send_repeats_ = n_times; }
-  void send(uint8_t *data, uint8_t length) { this->send_(this->address_, &data[0], length); }
+  /// Send a command; it replaces pending commands unless append is set
+  void send(uint8_t *data, uint8_t length, bool append = false) { this->send_(this->address_, data, length, append); }
+  /// Stop repeating the current command when this is its acknowledgement
+  void check_acknowledgement(uint64_t address, Command command);
   virtual bool receive(uint64_t address, uint8_t *data, uint8_t length, float rssi, uint8_t lqi) {
     return this->receive(address, data, length);
   }
@@ -62,14 +67,17 @@ class LivingColors1ClientComponent : public Component {
   uint64_t address_;
   uint16_t send_repeats_ = 7;
   uint16_t send_repeat_counter_ = 0;
-  // Persistent transmit buffer: send_() keeps a pointer to the packet for the
-  // repeats sent from loop(), so it must outlive the send_(address, ...) call.
-  uint8_t send_buffer_[32];
-  uint8_t *send_data_ = nullptr;
-  uint8_t send_data_length_ = 0;
+  // Packets being repeated, the first one is sent; kept as members as the repeats are sent from loop()
+  struct SendPacket {
+    uint8_t data[32];
+    uint8_t length;
+  };
+  SendPacket send_queue_[SEND_QUEUE_SIZE];
+  uint8_t send_queue_length_ = 0;
 
-  void send_(uint64_t address, uint8_t *data, uint8_t length);
+  void send_(uint64_t address, uint8_t *data, uint8_t length, bool append = false);
   void send_();
+  void next_packet_();
   uint64_t swapped_address_() {
     return ((0x00000000FFFFFFFF & this->address_) << 32) | ((0xFFFFFFFF00000000 & this->address_) >> 32);
   }
