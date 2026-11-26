@@ -23,6 +23,8 @@ enum class Command : uint8_t {
 
 class LivingColors1ClientComponent;
 
+static const size_t MAX_DETECTED_ADDRESSES = 16;
+
 class LivingColors1Component : public Component, public cc2500::CC2500Device<0, 3, 14> {
  public:
   void setup() override;
@@ -35,8 +37,11 @@ class LivingColors1Component : public Component, public cc2500::CC2500Device<0, 
 
  protected:
   std::vector<LivingColors1ClientComponent *> devices_;
+  std::vector<uint64_t> detected_addresses_;
 
   uint8_t serial_number_ = 0;
+
+  void log_detected_address_(uint64_t address);
 };
 
 class LivingColors1ClientComponent : public Component {

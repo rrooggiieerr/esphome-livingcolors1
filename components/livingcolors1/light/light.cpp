@@ -105,7 +105,7 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
     ESP_LOGD(TAG, "Color cycling sync");
   else if (this->is_response_(address)) {
     ESP_LOGD(TAG, "Response");
-    ESP_LOGD(TAG, "Command : 0x%02X", command);
+    ESP_LOGD(TAG, "Command : 0x%02X", (uint8_t) command);
   } else if (!this->is_address_(address))
     return false;
 
@@ -114,7 +114,7 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
   uint8_t saturation = data[3];
   uint8_t value = data[4];
 
-  ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command,
+  ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", (uint8_t) command,
            this->address_, hue, saturation, value);
 
   int _hue = int(round(float(hue) / (255.0 / 360.0)));
@@ -150,7 +150,7 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
     call.perform();
     return true;
   } else if (this->state_->get_effect_name() == "Color Cycle") {
-    ESP_LOGE(TAG, "Light is color cycling, can't set color");
+    ESP_LOGD(TAG, "Light is color cycling, can't set color");
     return true;
   } else if (command == Command::ON || command == Command::ACK_ON) {
     this->receive_ = true;
@@ -179,7 +179,7 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
     return true;
   }
 
-  ESP_LOGE(TAG, "Received unknown command 0x%02X", command);
+  ESP_LOGE(TAG, "Received unknown command 0x%02X", (uint8_t) command);
   return false;
 }
 

@@ -17,7 +17,7 @@ void LivingColors1Sensor::dump_config() {
 
 bool LivingColors1RSSISensor::receive(uint64_t address, uint8_t *data, uint8_t length, float rssi, uint8_t lqi) {
   if (this->is_response_(address)) {
-    ESP_LOGD(TAG, "RSSI: %d", rssi);
+    ESP_LOGD(TAG, "RSSI: %.1f", rssi);
     this->publish_state(rssi);
 
     return true;

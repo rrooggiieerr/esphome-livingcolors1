@@ -34,13 +34,13 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, 
 
   // Validate packet length, 14 bytes
   if (data[0] != 14) {
-    ESP_LOGE(TAG, "Invalid packet length: %d", data[0]);
+    ESP_LOGD(TAG, "Invalid packet length: %d", data[0]);
     return false;
   }
 
   // Validate fixed value
   if (data[9] != 0x11) {
-    ESP_LOGE(TAG, "Invalid fixed value: 0x%02X", data[9]);
+    ESP_LOGD(TAG, "Invalid fixed value: 0x%02X", data[9]);
     return false;
   }
 
@@ -56,7 +56,7 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, 
   for (int i = 3; i <= 8; i++) {
     payload += uint64_t(data[i + 6]) << ((8 - i) * 8);
   }
-  ESP_LOGV(TAG, "payload: 0x%06" PRIX64, payload);
+  ESP_LOGV(TAG, "payload: 0x%012" PRIX64, payload);
 
   // Command
   Command command = (Command) data[10];
@@ -74,14 +74,24 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, 
 
   if (!success && (command == Command::HSV || command == Command::ON || command == Command::OFF)) {
     // If the address is not yet handled, log the address as detected
-    ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
+    this->log_detected_address_(address);
   }
   if (!success && command == Command::PAIRING_RESPONSE) {
     // If the address is a pairing response swap the light and remote address parts and show as detected address
-    ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64,
-             ((0x00000000FFFFFFFF & address) << 32) | ((0xFFFFFFFF00000000 & address) >> 32));
+    this->log_detected_address_(((0x00000000FFFFFFFF & address) << 32) | ((0xFFFFFFFF00000000 & address) >> 32));
   }
   return true;
+}
+
+void LivingColors1Component::log_detected_address_(uint64_t address) {
+  // Log each address once
+  for (uint64_t logged : this->detected_addresses_) {
+    if (logged == address)
+      return;
+  }
+  if (this->detected_addresses_.size() < MAX_DETECTED_ADDRESSES)
+    this->detected_addresses_.push_back(address);
+  ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
 }
 
 void LivingColors1Component::send(uint8_t *data, uint8_t length) {
