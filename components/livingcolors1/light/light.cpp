@@ -25,8 +25,8 @@ void LivingColors1Light::setup_state(light::LightState *state) {
   // gamma_correct in YAML; LIGHT_SCHEMA has no gamma_correct, so output stays linear).
   // It will be removed in 2027.4.0, see #20.
   state_->set_default_transition_length(0);
-  // ESPHome 2026.11: add_effects() now takes an array and a count.
-  static light::LightEffect *const effects[] = {new LivingColors1CycleLightEffect()};
+  // Per light, not static: add_effects() keeps the pointer and the effect must not be shared
+  auto **effects = new light::LightEffect *[1]{new LivingColors1CycleLightEffect()};
   state_->add_effects(effects, 1);
 #else
   state_->set_gamma_correct(0);
