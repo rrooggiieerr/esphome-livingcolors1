@@ -217,7 +217,8 @@ void LivingColors1ClientComponent::check_acknowledgement(uint64_t address, Comma
     return;
   const uint8_t *data = this->send_queue_[0].data;
   uint8_t sent = data[10];
-  if (!expects_acknowledgement(sent) || (uint8_t) command != sent + 1)
+  // Usually the command + 1 (ACK_...); a lamp that's already off answers OFF with OFF
+  if (!expects_acknowledgement(sent) || ((uint8_t) command != sent + 1 && (uint8_t) command != sent))
     return;
   // The acknowledgement has the lamp and remote halves of the address swapped
   uint64_t sent_address = 0;
