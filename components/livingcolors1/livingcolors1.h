@@ -26,6 +26,8 @@ class LivingColors1ClientComponent;
 static const size_t MAX_DETECTED_ADDRESSES = 16;
 // Packets a client can have queued for sending, e.g. ON followed by CYCLE
 static const uint8_t SEND_QUEUE_SIZE = 2;
+// Time between repeats of a command
+static const uint32_t SEND_INTERVAL_MS = 14;
 
 class LivingColors1Component : public Component, public cc2500::CC2500Device<0, 3, 14> {
  public:
@@ -67,6 +69,7 @@ class LivingColors1ClientComponent : public Component {
   uint64_t address_;
   uint16_t send_repeats_ = 7;
   uint16_t send_repeat_counter_ = 0;
+  uint32_t last_send_ = 0;
   // Packets being repeated, the first one is sent; kept as members as the repeats are sent from loop()
   struct SendPacket {
     uint8_t data[32];

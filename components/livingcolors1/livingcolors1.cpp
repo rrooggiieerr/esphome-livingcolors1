@@ -125,12 +125,12 @@ LivingColors1ClientComponent::LivingColors1ClientComponent() {
 }
 
 void LivingColors1ClientComponent::loop() {
-  if (this->send_queue_length_ > 0) {
-    if (this->send_repeat_counter_ > 0)
-      esphome::delay(14);
-
-    this->send_();
-  }
+  if (this->send_queue_length_ == 0)
+    return;
+  // Wait between repeats without blocking, so an acknowledgement can be received meanwhile
+  if (this->send_repeat_counter_ > 0 && millis() - this->last_send_ < SEND_INTERVAL_MS)
+    return;
+  this->send_();
 }
 
 void LivingColors1ClientComponent::set_parent(LivingColors1Component *parent) {
@@ -191,6 +191,7 @@ void LivingColors1ClientComponent::send_() {
   if (this->send_repeat_counter_ < this->send_repeats_) {
     ESP_LOGD(TAG, "Sending...");
     this->parent_->send(this->send_queue_[0].data, this->send_queue_[0].length);
+    this->last_send_ = millis();
     this->send_repeat_counter_++;
   }
 
