@@ -1,9 +1,9 @@
 import esphome.codegen as cg
-import esphome.config_validation as cv
 from esphome.components import sensor
+import esphome.config_validation as cv
 from esphome.const import (
-    CONF_SENSOR_ID,
-    CONF_SIGNAL_STRENGTH,
+    CONF_SENSOR_ID as CONF_SENSOR_ID,
+    CONF_SIGNAL_STRENGTH as CONF_SIGNAL_STRENGTH,
     ENTITY_CATEGORY_DIAGNOSTIC,
     STATE_CLASS_MEASUREMENT,
     UNIT_DECIBEL_MILLIWATT,

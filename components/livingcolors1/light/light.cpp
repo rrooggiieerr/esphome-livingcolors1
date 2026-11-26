@@ -10,234 +10,232 @@ namespace livingcolors1 {
 
 static const char *const TAG = "livingcolors1.light";
 
-void LivingColors1Light::setup() {
-	ESP_LOGCONFIG(TAG, "Setting up Living Colors gen 1 light...");
-}
+void LivingColors1Light::setup() { ESP_LOGCONFIG(TAG, "Setting up Living Colors gen 1 light..."); }
 
 void LivingColors1Light::dump_config() {
-	ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");
-	ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
-	ESP_LOGCONFIG(TAG, "  Send repeats: %d", this->send_repeats_);
+  ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");
+  ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
+  ESP_LOGCONFIG(TAG, "  Send repeats: %d", this->send_repeats_);
 }
 
 void LivingColors1Light::setup_state(light::LightState *state) {
-	state_ = state;
+  state_ = state;
 #if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 11, 0)
-	// ESPHome 2026.11: set_gamma_correct() is a no-op (gamma is fixed at build time by
-	// gamma_correct in YAML; LIGHT_SCHEMA has no gamma_correct, so output stays linear).
-	// It will be removed in 2027.4.0, see #20.
-	state_->set_default_transition_length(0);
-	// ESPHome 2026.11: add_effects() now takes an array and a count.
-	static light::LightEffect *const effects[] = {new LivingColors1CycleLightEffect()};
-	state_->add_effects(effects, 1);
+  // ESPHome 2026.11: set_gamma_correct() is a no-op (gamma is fixed at build time by
+  // gamma_correct in YAML; LIGHT_SCHEMA has no gamma_correct, so output stays linear).
+  // It will be removed in 2027.4.0, see #20.
+  state_->set_default_transition_length(0);
+  // ESPHome 2026.11: add_effects() now takes an array and a count.
+  static light::LightEffect *const effects[] = {new LivingColors1CycleLightEffect()};
+  state_->add_effects(effects, 1);
 #else
-	state_->set_gamma_correct(0);
-	state_->set_default_transition_length(0);
-	state_->add_effects({new LivingColors1CycleLightEffect()});
+  state_->set_gamma_correct(0);
+  state_->set_default_transition_length(0);
+  state_->add_effects({new LivingColors1CycleLightEffect()});
 #endif
 }
 
 void LivingColors1Light::write_state(light::LightState *state) {
-	if (this->receive_ == true) {
-		ESP_LOGV(TAG, "Receive mode, don't write state to light");
-		this->receive_ = false;
-		return;
-	}
+  if (this->receive_ == true) {
+    ESP_LOGV(TAG, "Receive mode, don't write state to light");
+    this->receive_ = false;
+    return;
+  }
 
-	float brightness;
-	state->current_values_as_brightness(&brightness);
+  float brightness;
+  state->current_values_as_brightness(&brightness);
 
-	Command command;
-	uint8_t hue, saturation, value;
-	if (brightness > 0.0) {
-		float red, green, blue;
-		state->current_values_as_rgb(&red, &green, &blue);
+  Command command;
+  uint8_t hue, saturation, value;
+  if (brightness > 0.0) {
+    float red, green, blue;
+    state->current_values_as_rgb(&red, &green, &blue);
 
-		int _hue;
-		float _saturation, _value;
-		rgb_to_hsv(red, green, blue, _hue, _saturation, _value);
+    int _hue;
+    float _saturation, _value;
+    rgb_to_hsv(red, green, blue, _hue, _saturation, _value);
 
-		command = Command::ON;
-		hue = (uint8_t) lroundf(_hue * (255.0 / 360.0));
-		saturation = (uint8_t) lroundf(_saturation * 255.0);
-		value = (uint8_t) lroundf(_value * 255.0);
-	} else {
-		command = Command::OFF;
-		hue = 0;
-		saturation = 0;
-		value = 0;
-	}
+    command = Command::ON;
+    hue = (uint8_t) lroundf(_hue * (255.0 / 360.0));
+    saturation = (uint8_t) lroundf(_saturation * 255.0);
+    value = (uint8_t) lroundf(_value * 255.0);
+  } else {
+    command = Command::OFF;
+    hue = 0;
+    saturation = 0;
+    value = 0;
+  }
 
-	ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", this->address_, (uint8_t) command, hue, saturation, value);
+  ESP_LOGV(TAG, "Setting light on address 0x%016" PRIX64 " to 0x%02X 0x%02X 0x%02X 0x%02X", this->address_,
+           (uint8_t) command, hue, saturation, value);
 
-	uint8_t data[5];
+  uint8_t data[5];
 
-	// Command
-	data[0] = (uint8_t) command;
+  // Command
+  data[0] = (uint8_t) command;
 
-	// HSV Color values
-	data[2] = hue;
-	data[3] = saturation;
-	data[4] = value;
+  // HSV Color values
+  data[2] = hue;
+  data[3] = saturation;
+  data[4] = value;
 
-	this->send(data, 5);
+  this->send(data, 5);
 }
 
 bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length) {
-	if (length != 5)
-		return false;
+  if (length != 5)
+    return false;
 
-	// Command
-	Command command = (Command) data[0];
+  // Command
+  Command command = (Command) data[0];
 
-	if(this->is_special_(address) && command == Command::PAIRING_REQUEST) {
-		ESP_LOGV(TAG, "Pairing request: 0x%016" PRIX64, address);
-		return true;
-	}
+  if (this->is_special_(address) && command == Command::PAIRING_REQUEST) {
+    ESP_LOGV(TAG, "Pairing request: 0x%016" PRIX64, address);
+    return true;
+  }
 
-	if(this->is_response_(address) && command == Command::PAIRING_RESPONSE) {
-		ESP_LOGD(TAG, "Pairing response: 0x%016" PRIX64, address);
-		return true;
-	}
+  if (this->is_response_(address) && command == Command::PAIRING_RESPONSE) {
+    ESP_LOGD(TAG, "Pairing response: 0x%016" PRIX64, address);
+    return true;
+  }
 
-	if(this->is_address_(address) && command == Command::CYCLE)
-		ESP_LOGD(TAG, "Color cycling request");
-	else if(this->is_special_(address) && command == Command::CYCLE_SYNC)
-		ESP_LOGD(TAG, "Color cycling sync");
-	else if(this->is_response_(address)) {
-		ESP_LOGD(TAG, "Response");
-		ESP_LOGD(TAG, "Command : 0x%02X", command);
-	}
-	else if (!this->is_address_(address))
-		return false;
+  if (this->is_address_(address) && command == Command::CYCLE)
+    ESP_LOGD(TAG, "Color cycling request");
+  else if (this->is_special_(address) && command == Command::CYCLE_SYNC)
+    ESP_LOGD(TAG, "Color cycling sync");
+  else if (this->is_response_(address)) {
+    ESP_LOGD(TAG, "Response");
+    ESP_LOGD(TAG, "Command : 0x%02X", command);
+  } else if (!this->is_address_(address))
+    return false;
 
-	// HSV Color values
-	uint8_t hue = data[2];
-	uint8_t saturation = data[3];
-	uint8_t value = data[4];
+  // HSV Color values
+  uint8_t hue = data[2];
+  uint8_t saturation = data[3];
+  uint8_t value = data[4];
 
-	ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command, this->address_, hue, saturation, value);
+  ESP_LOGD(TAG, "Received command 0x%02X for address 0x%016" PRIX64 " HSV: 0x%02X 0x%02X 0x%02X", command,
+           this->address_, hue, saturation, value);
 
-	int _hue = int(round(float(hue) / (255.0 / 360.0)));
-	float _saturation = float(saturation) / 255;
-	float _value = float(value) / 255;
-	float red, green, blue;
-	hsv_to_rgb(_hue, _saturation, _value, red, green, blue);
+  int _hue = int(round(float(hue) / (255.0 / 360.0)));
+  float _saturation = float(saturation) / 255;
+  float _value = float(value) / 255;
+  float red, green, blue;
+  hsv_to_rgb(_hue, _saturation, _value, red, green, blue);
 
-	if(command == Command::OFF || command == Command::ACK_OFF) {
-		this->receive_ = true;
-		if(this->state_->get_effect_name() == "Color Cycle") {
-			auto call = this->state_->make_call();
-			call.set_effect("none");
-			call.set_save(false);
+  if (command == Command::OFF || command == Command::ACK_OFF) {
+    this->receive_ = true;
+    if (this->state_->get_effect_name() == "Color Cycle") {
+      auto call = this->state_->make_call();
+      call.set_effect("none");
+      call.set_save(false);
 
-			call.perform();
-		}
+      call.perform();
+    }
 
-		auto call = this->state_->turn_off();
+    auto call = this->state_->turn_off();
 
-		call.perform();
-		return true;
-	} else if(command == Command::CYCLE || command == Command::ACK_CYCLE || command == Command::CYCLE_SYNC) {
-		this->receive_ = true;
+    call.perform();
+    return true;
+  } else if (command == Command::CYCLE || command == Command::ACK_CYCLE || command == Command::CYCLE_SYNC) {
+    this->receive_ = true;
 
-		auto call = this->state_->make_call();
-		call.set_state(true);
-		call.set_rgb(red, green, blue);
-		call.set_brightness(_value);
-		call.set_effect("Color Cycle");
-		call.set_save(false);
+    auto call = this->state_->make_call();
+    call.set_state(true);
+    call.set_rgb(red, green, blue);
+    call.set_brightness(_value);
+    call.set_effect("Color Cycle");
+    call.set_save(false);
 
-		call.perform();
-		return true;
-	} else if(this->state_->get_effect_name() == "Color Cycle") {
-		ESP_LOGE(TAG, "Light is color cycling, can't set color");
-		return true;
-	} else if(command == Command::ON || command == Command::ACK_ON) {
-		this->receive_ = true;
+    call.perform();
+    return true;
+  } else if (this->state_->get_effect_name() == "Color Cycle") {
+    ESP_LOGE(TAG, "Light is color cycling, can't set color");
+    return true;
+  } else if (command == Command::ON || command == Command::ACK_ON) {
+    this->receive_ = true;
 
-		auto call = this->state_->turn_on();
-		call.set_rgb(red, green, blue);
-		call.set_brightness(_value);
-		if(command == Command::ON)
-			call.set_effect("none");
+    auto call = this->state_->turn_on();
+    call.set_rgb(red, green, blue);
+    call.set_brightness(_value);
+    if (command == Command::ON)
+      call.set_effect("none");
 
-		call.perform();
-		return true;
-	} else if(!this->state_->current_values.is_on()) {
-		ESP_LOGD(TAG, "Light is off, can't set color");
-		return true;
-	} else if (command == Command::HSV || command == Command::ACK_HSV) {
-		this->receive_ = true;
+    call.perform();
+    return true;
+  } else if (!this->state_->current_values.is_on()) {
+    ESP_LOGD(TAG, "Light is off, can't set color");
+    return true;
+  } else if (command == Command::HSV || command == Command::ACK_HSV) {
+    this->receive_ = true;
 
-		auto call = this->state_->make_call();
-		call.set_state(true);
-		call.set_rgb(red, green, blue);
-		call.set_brightness(_value);
-		call.set_effect("none");
+    auto call = this->state_->make_call();
+    call.set_state(true);
+    call.set_rgb(red, green, blue);
+    call.set_brightness(_value);
+    call.set_effect("none");
 
-		call.perform();
-		return true;
-	}
+    call.perform();
+    return true;
+  }
 
-	ESP_LOGE(TAG, "Received unknown command 0x%02X", command);
-	return false;
+  ESP_LOGE(TAG, "Received unknown command 0x%02X", command);
+  return false;
 }
 
 void LivingColors1CycleLightEffect::apply() {
-	if(!this->applied_) {
-		ESP_LOGV(TAG, "LivingColors1CycleLightEffect::apply");
+  if (!this->applied_) {
+    ESP_LOGV(TAG, "LivingColors1CycleLightEffect::apply");
 
-		LivingColors1Light *output = (LivingColors1Light*) this->state_->get_output();
-		Command command;
-		uint8_t hue, saturation, value;
-		float red, green, blue;
-		this->state_->current_values_as_rgb(&red, &green, &blue);
+    LivingColors1Light *output = (LivingColors1Light *) this->state_->get_output();
+    Command command;
+    uint8_t hue, saturation, value;
+    float red, green, blue;
+    this->state_->current_values_as_rgb(&red, &green, &blue);
 
-		int _hue;
-		float _saturation, _value;
-		rgb_to_hsv(red, green, blue, _hue, _saturation, _value);
+    int _hue;
+    float _saturation, _value;
+    rgb_to_hsv(red, green, blue, _hue, _saturation, _value);
 
-		hue = (uint8_t) lroundf(_hue * (255.0 / 360.0));
-		saturation = (uint8_t) lroundf(_saturation * 255.0);
-		value = (uint8_t) lroundf(_value * 255.0);
+    hue = (uint8_t) lroundf(_hue * (255.0 / 360.0));
+    saturation = (uint8_t) lroundf(_saturation * 255.0);
+    value = (uint8_t) lroundf(_value * 255.0);
 
-		uint8_t data[5];
+    uint8_t data[5];
 
-		// Command
-		data[0] = (uint8_t) Command::ON;
+    // Command
+    data[0] = (uint8_t) Command::ON;
 
-		// HSV Color values
-		data[2] = hue;
-		data[3] = saturation;
-		data[4] = value;
+    // HSV Color values
+    data[2] = hue;
+    data[3] = saturation;
+    data[4] = value;
 
-		output->send(&data[0], 5);
+    output->send(&data[0], 5);
 
-		data[0] = (uint8_t) Command::CYCLE;
-		output->send(&data[0], 5);
+    data[0] = (uint8_t) Command::CYCLE;
+    output->send(&data[0], 5);
 
-		this->applied_ = true;
-	}
+    this->applied_ = true;
+  }
 }
 
 void LivingColors1CycleLightEffect::stop() {
-	ESP_LOGV(TAG, "LivingColors1CycleLightEffect::stop");
-	LivingColors1Light *output = (LivingColors1Light*) this->state_->get_output();
-	uint8_t data[5];
+  ESP_LOGV(TAG, "LivingColors1CycleLightEffect::stop");
+  LivingColors1Light *output = (LivingColors1Light *) this->state_->get_output();
+  uint8_t data[5];
 
-	// Command
-	data[0] = (uint8_t) Command::OFF;
+  // Command
+  data[0] = (uint8_t) Command::OFF;
 
-	// HSV Color values
-	data[2] = 0x00;
-	data[3] = 0x00;
-	data[4] = 0x00;
+  // HSV Color values
+  data[2] = 0x00;
+  data[3] = 0x00;
+  data[4] = 0x00;
 
-	output->send(&data[0], 5);
-	this->applied_ = false;
+  output->send(&data[0], 5);
+  this->applied_ = false;
 }
 
-
-}
-}
+}  // namespace livingcolors1
+}  // namespace esphome

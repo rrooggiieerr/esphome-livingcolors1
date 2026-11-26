@@ -11,41 +11,41 @@
 namespace esphome {
 namespace livingcolors1 {
 
-class LivingColors1Light: public LivingColors1ClientComponent, public light::LightOutput {
-public:
-	void setup() override;
+class LivingColors1Light : public LivingColors1ClientComponent, public light::LightOutput {
+ public:
+  void setup() override;
 
-	void dump_config() override;
-	void setup_state(light::LightState *state) override;
-	void write_state(light::LightState *state) override;
-	light::LightTraits get_traits() override {
-		auto traits = light::LightTraits();
-		traits.set_supported_color_modes( { light::ColorMode::RGB });
-		return traits;
-	}
-	bool receive(uint64_t address, uint8_t *data, uint8_t length) override;
+  void dump_config() override;
+  void setup_state(light::LightState *state) override;
+  void write_state(light::LightState *state) override;
+  light::LightTraits get_traits() override {
+    auto traits = light::LightTraits();
+    traits.set_supported_color_modes({light::ColorMode::RGB});
+    return traits;
+  }
+  bool receive(uint64_t address, uint8_t *data, uint8_t length) override;
 
-protected:
-	light::LightState *state_ { nullptr };
-	bool receive_ = false;
+ protected:
+  light::LightState *state_{nullptr};
+  bool receive_ = false;
 };
 
 class LivingColors1CycleLightEffect : public light::LightEffect {
-public:
-	LivingColors1CycleLightEffect()
-	: light::LightEffect("Color Cycle") {}
+ public:
+  LivingColors1CycleLightEffect() : light::LightEffect("Color Cycle") {}
 
-	/// Called when this effect is about to be removed
-	void stop() override;
+  /// Called when this effect is about to be removed
+  void stop() override;
 
-	/// Apply this effect. Use the provided state for starting transitions, ...
-	void apply() override;
+  /// Apply this effect. Use the provided state for starting transitions, ...
+  void apply() override;
 
-	/// Internal method called by the LightState when this light effect is registered in it.
-	void init() {}
-protected:
-	bool applied_ = false;
+  /// Internal method called by the LightState when this light effect is registered in it.
+  void init() {}
+
+ protected:
+  bool applied_ = false;
 };
 
-}
-}
+}  // namespace livingcolors1
+}  // namespace esphome

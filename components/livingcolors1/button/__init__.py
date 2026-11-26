@@ -1,7 +1,10 @@
 import esphome.codegen as cg
-import esphome.config_validation as cv
 from esphome.components import button
-from esphome.const import ENTITY_CATEGORY_CONFIG, ENTITY_CATEGORY_DIAGNOSTIC
+import esphome.config_validation as cv
+from esphome.const import (
+    ENTITY_CATEGORY_CONFIG,
+    ENTITY_CATEGORY_DIAGNOSTIC as ENTITY_CATEGORY_DIAGNOSTIC,
+)
 
 from .. import (
     CONF_ADDRESS,
