@@ -1,6 +1,4 @@
 #include "esphome/core/log.h"
-#include "esphome/core/macros.h"
-#include "esphome/core/version.h"
 #include "light.h"
 
 #include <cinttypes>
@@ -20,25 +18,21 @@ void LivingColors1Light::dump_config() {
 
 void LivingColors1Light::setup_state(light::LightState *state) {
   state_ = state;
-#if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 11, 0)
-  // ESPHome 2026.11: set_gamma_correct() is a no-op (gamma is fixed at build time by
-  // gamma_correct in YAML; LIGHT_SCHEMA has no gamma_correct, so output stays linear).
-  // It will be removed in 2027.4.0, see #20.
   state_->set_default_transition_length(0);
   // Per light, not static: add_effects() keeps the pointer and the effect must not be shared
   auto **effects = new light::LightEffect *[1]{new LivingColors1CycleLightEffect()};
   state_->add_effects(effects, 1);
-#else
-  state_->set_gamma_correct(0);
-  state_->set_default_transition_length(0);
-  state_->add_effects({new LivingColors1CycleLightEffect()});
-#endif
 }
 
 void LivingColors1Light::write_state(light::LightState *state) {
   if (this->receive_ == true) {
     ESP_LOGV(TAG, "Receive mode, don't write state to light");
     this->receive_ = false;
+    return;
+  }
+  // The Color Cycle effect sends ON and CYCLE itself; sending ON here would replace the queued CYCLE
+  if (state->get_effect_name() == "Color Cycle") {
+    ESP_LOGV(TAG, "Color cycling, don't write state to light");
     return;
   }
 

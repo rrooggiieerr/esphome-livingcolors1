@@ -15,14 +15,15 @@ CONF_LIVINGCOLORS1_ID = "livingcolors1_id"
 CONF_ADDRESS = "address"
 CONF_SEND_REPEATS = "send_repeats"
 
-CONFIG_SCHEMA = (
+CONFIG_SCHEMA = cv.All(
     cv.Schema(
         {
             cv.GenerateID(): cv.declare_id(LivingColors1Component),
         }
     )
     .extend(cc2500.CC2500_DEVICE_SCHEMA)
-    .extend(cv.COMPONENT_SCHEMA)
+    .extend(cv.COMPONENT_SCHEMA),
+    cv.require_esphome_version(2026, 11, 0),
 )
 
 

@@ -1,8 +1,6 @@
 #include "livingcolors1.h"
 
 #include "esphome/core/log.h"
-#include "esphome/core/macros.h"
-#include "esphome/core/version.h"
 #include "esphome/components/cc2500/cc2500.h"
 
 #include <cinttypes>
@@ -111,15 +109,10 @@ void LivingColors1Component::send(uint8_t *data, uint8_t length) {
 }
 
 LivingColors1ClientComponent::LivingColors1ClientComponent() {
-#if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 11, 0)
-  // ESPHome 2026.11 removed get_mac_address(); get_mac_address_into_buffer()
-  // returns the same format (12 lowercase hex characters, no separators).
+  // 12 lowercase hex characters, no separators
   char mac_buf[MAC_ADDRESS_BUFFER_SIZE];
   get_mac_address_into_buffer(mac_buf);
   std::string mac_address(mac_buf);
-#else
-  std::string mac_address = get_mac_address();
-#endif
   std::string address = "FFFFFFFF" + mac_address.substr(mac_address.length() - 8, 8);
   this->address_ = std::strtoull(address.c_str(), nullptr, 16);
 }

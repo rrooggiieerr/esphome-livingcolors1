@@ -13,6 +13,7 @@ esphome:
   name: "${name}"
   friendly_name: "${friendly_name}"
   comment: "Philips LivingColors 1st generation"
+  min_version: 2026.11.0
   # Automatically add the mac address to the name
   # so you can use a single firmware for all devices
   name_add_mac_suffix: true
