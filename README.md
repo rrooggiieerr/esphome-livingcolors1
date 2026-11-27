@@ -233,8 +233,9 @@ This also unpairs it from the remote control; pair it with the remote control ag
 it.
 
 A factory reset removes all added lights, together with the Wi-Fi settings. With the factory
-configurations in this repository you do a factory reset by pressing the boot button twice and
-then holding it for 5 seconds.
+configurations in this repository you do a factory reset with the Factory reset button in Home
+Assistant, which is disabled by default, or by pressing the boot button twice and then holding it
+for 5 seconds.
 
 ## Detecting the LivingColors address
 
