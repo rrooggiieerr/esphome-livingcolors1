@@ -33,4 +33,7 @@ binary_sensor:
         input: True
         pullup: True
       inverted: True
+    # Debouncing
+    filters:
+      - delayed_on: 50ms
     internal: True

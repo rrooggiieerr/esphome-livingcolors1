@@ -38,4 +38,7 @@ binary_sensor:
         pullup: True
       inverted: True
       ignore_strapping_warning: True
+    # Debouncing
+    filters:
+      - delayed_on: 50ms
     internal: True

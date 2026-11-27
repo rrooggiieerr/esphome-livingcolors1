@@ -1,7 +1,5 @@
 binary_sensor:
   - id: !extend boot_button
-    filters:
-      - delayed_on: 50ms
     on_multi_click:
       - timing:
           - ON for 0.2s to 3s
