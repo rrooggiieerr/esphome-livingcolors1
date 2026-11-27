@@ -17,6 +17,7 @@ void LivingColors1ButtonComponent::dump_config() {
 
 void LivingColors1PairButton::press_action() {
   ESP_LOGV(TAG, "Pair Button press for address 0x%016" PRIX64, this->special_address_());
+  this->parent_->start_pairing(uint32_t(this->address_));
 
   uint8_t data[5];
 
@@ -31,39 +32,15 @@ void LivingColors1PairButton::press_action() {
   this->send_(this->special_address_(), &data[0], 5);
 }
 
-bool LivingColors1PairButton::receive(uint64_t address, uint8_t *data, uint8_t length) {
-  // Command
-  Command command = (Command) data[0];
-
-  if (this->is_special_(address) && command == Command::PAIRING_REQUEST) {
-    ESP_LOGV(TAG, "Pairing request: 0x%016" PRIX64, address);
-    return true;
-  }
-
-  if (this->is_response_(address) && command == Command::PAIRING_RESPONSE) {
-    ESP_LOGD(TAG, "Pairing response: 0x%016" PRIX64, address);
-    // A pairing response has the light address and remote address swapped.
-    ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, this->swapped_address_());
-    return true;
-  }
-
-  return false;
+void LivingColors1LearnButton::press_action() {
+  ESP_LOGV(TAG, "Learn Button press");
+  this->parent_->start_learning();
 }
 
 void LivingColors1UnpairButton::press_action() {
-  ESP_LOGV(TAG, "Unpair Button press for address 0x%016" PRIX64, this->special_address_());
-
-  uint8_t data[5];
-
-  // Command
-  data[0] = (uint8_t) Command::UNPAIRING_REQUEST;
-
-  // HSV Color values
-  data[2] = 0x00;
-  data[3] = 0x00;
-  data[4] = 0x00;
-
-  this->send(data, 5);
+  // Only lamps paired with the ESP's remote ID, the same as Pair uses; not those of a remote control
+  ESP_LOGV(TAG, "Unpair Button press");
+  this->parent_->unpair(uint32_t(this->address_));
 }
 
 void LivingColors1TestButton::press_action() {

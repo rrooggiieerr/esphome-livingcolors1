@@ -14,11 +14,3 @@ button:
       id: livingcolors1_unpair_button
       name: "Unpair LivingColors"
       disabled_by_default: True
-
-binary_sensor:
-  - id: !extend boot_button
-    on_multi_click:
-      - timing:
-          - ON for at least 3s
-        then:
-          - button.press: livingcolors1_pair_button

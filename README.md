@@ -119,6 +119,22 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+
+# Boot button, hold for 3 seconds to pair
+binary_sensor:
+  - platform: gpio
+    id: boot_button
+    pin:
+      number: GPIO9
+      mode:
+        input: True
+        pullup: True
+      inverted: True
+      ignore_strapping_warning: True
+    # Debouncing
+    filters:
+      - delayed_on: 50ms
+    internal: True
 ```
 
 CC2500 settings for Wemos D1 mini and CC2500 Shield V2.0
@@ -160,6 +176,8 @@ button:
   - platform: livingcolors1
     pair:
       name: "Pair LivingColors"
+    learn:
+      name: "Learn LivingColors"
     unpair:
       name: "Unpair LivingColors"
 
@@ -170,11 +188,60 @@ light:
     restore_mode: RESTORE_DEFAULT_OFF
 ```
 
+Instead of these LivingColors settings you can include the ones of the devices in this repository.
+The second package adds learning and pairing with the boot button defined above on ESP32, see
+[Adding LivingColors LED lights](#adding-livingcolors-led-lights).
+
+```
+packages:
+  livingcolors1: github://rrooggiieerr/esphome-livingcolors1/livingcolors1.yaml@master
+  livingcolors1_learning: github://rrooggiieerr/esphome-livingcolors1/livingcolors1-learning.yaml@master
+```
+
+## Adding LivingColors LED lights
+
+With the C3 mini configurations in this repository you add LivingColors LED lights with the
+buttons on the device page in Home Assistant, or for pairing with the boot button on the ESP. Once
+added, the ESP restarts and the light appears in Home Assistant, where you can rename it. Up to 16
+lights can be added.
+
+### With the LivingColors remote control
+
+Press the Learn LivingColors button, then switch the light on or off or change its color with the
+remote control within 30 seconds. All lights that react to the remote control are added, and the
+remote control keeps working.
+
+### Without the LivingColors remote control
+
+Keep the ESP close to the light and press the Pair LivingColors button, or hold the boot button on
+the ESP for 3 seconds. The light is now paired with the ESP; a remote control it was paired with no
+longer works.
+
+The ESP pairs as its own remote control, with an address based on its MAC address. Lights paired
+with one ESP therefore only work with that ESP; when you replace the ESP, pair them again.
+
+### Removing a light
+
+Press the Unpair LivingColors button to unpair the lights that are paired with the ESP. They are
+unpaired, the ESP restarts and they are no longer offered to Home Assistant. Unpairing reaches
+further than pairing, so all lights paired with the ESP within reach are unpaired. Lights learned
+from a remote control are not unpaired. The button is disabled by default to prevent accidental
+unpairing, enable it on the device page in Home Assistant first.
+
+To remove a light learned from a remote control, pair it with the ESP first and then unpair it.
+This also unpairs it from the remote control; pair it with the remote control again to keep using
+it.
+
+A factory reset removes all added lights, together with the Wi-Fi settings. With the factory
+configurations in this repository you do a factory reset by pressing the boot button twice and
+then holding it for 5 seconds.
+
 ## Detecting the LivingColors address
 
-There are two ways to detect the address needed to send and receive LivingColors commands. In both
-cases you need to enable info loglevel in your ESPHome configuration and keep the log console open.
-When a new LivingColors address is detected, the address will be printed to the ESPHome console.
+With your own configuration, or on ESP8266, you can also detect the address needed to send and
+receive LivingColors commands. You need to enable info loglevel in your ESPHome configuration and
+keep the log console open. When a new LivingColors address is detected, the address will be printed
+to the ESPHome console. You can then use this address in the button and light components.
 
 ### Use the LivingColors remote control
 
@@ -184,16 +251,30 @@ really matter in which way you control it. Switching on/off or changing the colo
 When the LivingColors component detects the command it will print the address to the logging
 console.
 
-You can now use this address in the button and light components.
-
 ### Pairing the LivingColors LED light from the ESP
 
 This method is particularly useful if you don't have the remote control. Flash your ESP with the
-above example configuration YAML except for the light component. Keep the ESP with CC2500 module
-close to the LivingColors LED light. When clicking the Pair LivingColors button the address will be
-printed to the logging console when pairing is successful.
+above example configuration YAML except for the light component. Pair the light as described
+above with the Pair LivingColors button, when pairing is successful the address is printed to the
+logging console.
 
-You can now use this address in the light component.
+The remote address the ESP pairs with is the last 4 bytes of its MAC address, so it's unique to the
+ESP. To pair with another remote address, set `address` on the button component to `0xFFFFFFFF`
+followed by that remote address.
+
+### Lights without address
+
+On ESP32 a light without `address` gets its address from pairing or learning, and is hidden until
+then. The address is stored by the light's `id`, which is required for these lights; the name can be
+changed. The ESP8266 has too little storage for this.
+
+```
+light:
+  - platform: livingcolors1
+    id: livingcolors1_light_1
+    name: "LivingColors 1"
+    restore_mode: RESTORE_DEFAULT_OFF
+```
 
 ## Improve command reception
 

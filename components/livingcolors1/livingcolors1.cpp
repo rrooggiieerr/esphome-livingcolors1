@@ -1,5 +1,6 @@
 #include "livingcolors1.h"
 
+#include "esphome/core/application.h"
 #include "esphome/core/log.h"
 #include "esphome/components/cc2500/cc2500.h"
 
@@ -83,9 +84,13 @@ bool LivingColors1Component::receive(uint8_t *data, uint8_t length, float rssi, 
     // If the address is not yet handled, log the address as detected
     this->log_detected_address_(address);
   }
+  if (!success)
+    this->learn_(address, command);
   if (!success && command == Command::PAIRING_RESPONSE) {
     // If the address is a pairing response swap the light and remote address parts and show as detected address
-    this->log_detected_address_(((0x00000000FFFFFFFF & address) << 32) | ((0xFFFFFFFF00000000 & address) >> 32));
+    uint64_t light_address = swap_address(address);
+    this->log_detected_address_(light_address);
+    this->pair_(light_address);
   }
   return true;
 }
@@ -99,6 +104,105 @@ void LivingColors1Component::log_detected_address_(uint64_t address) {
   if (this->detected_addresses_.size() < MAX_DETECTED_ADDRESSES)
     this->detected_addresses_.push_back(address);
   ESP_LOGI(TAG, "Address detected: 0x%016" PRIX64, address);
+}
+
+bool LivingColors1Component::can_store_() {
+  for (auto *device : this->devices_) {
+    if (device->can_store_address())
+      return true;
+  }
+  return false;
+}
+
+void LivingColors1Component::start_pairing(uint32_t remote_id) {
+  // Without lights that store addresses, e.g. on ESP8266, pairing only logs the detected address
+  if (!this->can_store_())
+    return;
+  ESP_LOGI(TAG, "Pairing for %" PRIu32 " seconds", PAIRING_TIMEOUT_MS / 1000);
+  this->pairing_ = true;
+  this->pairing_remote_id_ = remote_id;
+  this->set_timeout("pairing", PAIRING_TIMEOUT_MS, [this]() {
+    this->pairing_ = false;
+    ESP_LOGI(TAG, "Pairing ended");
+  });
+}
+
+void LivingColors1Component::pair_(uint64_t address) {
+  // Only right after pressing Pair, and only for a lamp answering our remote ID. Every lamp close enough
+  // answers, so keep storing until the timeout; a stored lamp's answers are handled by its light.
+  if (!this->pairing_ || uint32_t(address) != this->pairing_remote_id_)
+    return;
+  this->store_(address);
+}
+
+void LivingColors1Component::schedule_reboot() {
+  // A light can only be shown or hidden during boot; wait for more lamps answering the same command
+  this->set_timeout("reboot", 2000, []() { App.safe_reboot(); });
+}
+
+void LivingColors1Component::unpair(uint32_t remote_id) {
+  for (auto *device : this->devices_)
+    device->unpair(remote_id);
+}
+
+void LivingColors1Component::start_learning() {
+  if (!this->can_store_()) {
+    ESP_LOGW(TAG, "No lights to store learned addresses in");
+    return;
+  }
+  ESP_LOGI(TAG, "Learning, use the remote control within %" PRIu32 " seconds", LEARNING_TIMEOUT_MS / 1000);
+  this->learning_ = true;
+  this->learn_candidates_length_ = 0;
+  this->set_timeout("learning", LEARNING_TIMEOUT_MS, [this]() {
+    this->learning_ = false;
+    ESP_LOGI(TAG, "Learning ended");
+  });
+}
+
+void LivingColors1Component::learn_(uint64_t address, Command command) {
+  if (!this->learning_)
+    return;
+  uint8_t code = (uint8_t) command;
+
+  // Only store lamps that answer, a remote may still send to lamps that no longer exist. The answer has the
+  // address halves swapped and the command + 1, or OFF for OFF when the lamp is already off.
+  uint64_t light_address = swap_address(address);
+  for (uint8_t i = 0; i < this->learn_candidates_length_; i++) {
+    LearnCandidate &candidate = this->learn_candidates_[i];
+    if (candidate.address == light_address && (code == candidate.command + 1 || code == candidate.command)) {
+      candidate = this->learn_candidates_[--this->learn_candidates_length_];
+      this->store_(light_address);
+      return;
+    }
+  }
+
+  // A command from a remote, remember it until the lamp answers
+  if (command != Command::HSV && command != Command::ON && command != Command::OFF)
+    return;
+  for (uint8_t i = 0; i < this->learn_candidates_length_; i++) {
+    if (this->learn_candidates_[i].address == address) {
+      this->learn_candidates_[i].command = code;
+      return;
+    }
+  }
+  if (this->learn_candidates_length_ < MAX_LEARN_CANDIDATES)
+    this->learn_candidates_[this->learn_candidates_length_++] = {address, code};
+}
+
+void LivingColors1Component::store_(uint64_t address) {
+  // A lamp is paired with one remote, so a stored address with the same lamp ID is outdated
+  for (auto *device : this->devices_) {
+    if (device->replace_address(address))
+      return;
+  }
+  for (auto *device : this->devices_) {
+    if (device->store_address(address)) {
+      ESP_LOGI(TAG, "Stored 0x%016" PRIX64 ", rebooting", address);
+      this->schedule_reboot();
+      return;
+    }
+  }
+  ESP_LOGW(TAG, "No light without address to store 0x%016" PRIX64, address);
 }
 
 void LivingColors1Component::send(uint8_t *data, uint8_t length) {
@@ -118,8 +222,11 @@ LivingColors1ClientComponent::LivingColors1ClientComponent() {
 }
 
 void LivingColors1ClientComponent::loop() {
-  if (this->send_queue_length_ == 0)
+  // Nothing to send; send_() enables the loop again
+  if (this->send_queue_length_ == 0) {
+    this->disable_loop();
     return;
+  }
   // Wait between repeats without blocking, so an acknowledgement can be received meanwhile
   if (this->send_repeat_counter_ > 0 && millis() - this->last_send_ < SEND_INTERVAL_MS)
     return;
@@ -169,6 +276,7 @@ void LivingColors1ClientComponent::send_(uint64_t address, uint8_t *data, uint8_
 
   packet.length = length_;
   this->send_queue_length_++;
+  this->enable_loop();
 
   // Start right away when nothing else is being repeated
   if (this->send_queue_length_ == 1) {
@@ -211,13 +319,15 @@ void LivingColors1ClientComponent::check_acknowledgement(uint64_t address, Comma
   const uint8_t *data = this->send_queue_[0].data;
   uint8_t sent = data[10];
   // Usually the command + 1 (ACK_...); a lamp that's already off answers OFF with OFF
-  if (!expects_acknowledgement(sent) || ((uint8_t) command != sent + 1 && (uint8_t) command != sent))
+  // A far away lamp ignores unpairing, so it's never warned about; only stop repeating when answered
+  bool unpairing = sent == (uint8_t) Command::UNPAIRING_REQUEST;
+  if ((!expects_acknowledgement(sent) && !unpairing) || ((uint8_t) command != sent + 1 && (uint8_t) command != sent))
     return;
   // The acknowledgement has the lamp and remote halves of the address swapped
   uint64_t sent_address = 0;
   for (int i = 1; i <= 8; i++)
     sent_address = (sent_address << 8) | data[i];
-  if (address != ((sent_address << 32) | (sent_address >> 32)))
+  if (address != swap_address(sent_address))
     return;
   ESP_LOGD(TAG, "Acknowledged after %u sends", this->send_repeat_counter_);
   this->next_packet_();

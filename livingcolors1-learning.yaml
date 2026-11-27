@@ -1,0 +1,83 @@
+# Learning lights by pairing or with the remote control, ESP32 only
+button:
+  - id: !extend livingcolors1_buttons
+    learn:
+      id: livingcolors1_learn_button
+      name: "Learn LivingColors"
+
+# Lights without address get theirs when pairing or learning and stay hidden until then.
+# The address is stored by id, so keep the ids; the names can be changed.
+light:
+  - platform: livingcolors1
+    id: livingcolors1_light_1
+    name: "LivingColors 1"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_2
+    name: "LivingColors 2"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_3
+    name: "LivingColors 3"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_4
+    name: "LivingColors 4"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_5
+    name: "LivingColors 5"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_6
+    name: "LivingColors 6"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_7
+    name: "LivingColors 7"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_8
+    name: "LivingColors 8"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_9
+    name: "LivingColors 9"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_10
+    name: "LivingColors 10"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_11
+    name: "LivingColors 11"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_12
+    name: "LivingColors 12"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_13
+    name: "LivingColors 13"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_14
+    name: "LivingColors 14"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_15
+    name: "LivingColors 15"
+    restore_mode: RESTORE_DEFAULT_OFF
+  - platform: livingcolors1
+    id: livingcolors1_light_16
+    name: "LivingColors 16"
+    restore_mode: RESTORE_DEFAULT_OFF
+
+# Hold the boot button for 3 seconds to pair
+binary_sensor:
+  - id: !extend boot_button
+    on_multi_click:
+      - timing:
+          - ON for at least 3s
+        then:
+          - button.press: livingcolors1_pair_button

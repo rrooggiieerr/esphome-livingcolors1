@@ -17,9 +17,11 @@ class LivingColors1ButtonComponent : public LivingColors1ClientComponent, public
 };
 
 class LivingColors1PairButton : public LivingColors1ButtonComponent {
- public:
-  bool receive(uint64_t address, uint8_t *data, uint8_t length) override;
+ protected:
+  void press_action() override;
+};
 
+class LivingColors1LearnButton : public LivingColors1ButtonComponent {
  protected:
   void press_action() override;
 };

@@ -8,12 +8,26 @@ namespace livingcolors1 {
 
 static const char *const TAG = "livingcolors1.light";
 
-void LivingColors1Light::setup() { ESP_LOGCONFIG(TAG, "Setting up Living Colors gen 1 light..."); }
+// Keeps the stored address apart from other preferences
+static const uint32_t ADDRESS_PREFERENCE_VERSION = 0x4C433141;
+
+void LivingColors1Light::setup() {
+  // Lights without address are hidden, keep them out of the log too
+  if (this->has_address_)
+    ESP_LOGCONFIG(TAG, "Setting up Living Colors gen 1 light...");
+}
 
 void LivingColors1Light::dump_config() {
+  if (!this->has_address_)
+    return;
   ESP_LOGCONFIG(TAG, "Living Colors gen 1 light:");
   ESP_LOGCONFIG(TAG, "  Address: 0x%016" PRIX64, this->address_);
   ESP_LOGCONFIG(TAG, "  Send repeats: %d", this->send_repeats_);
+}
+
+void LivingColors1LightState::dump_config() {
+  if (static_cast<LivingColors1Light *>(this->get_output())->has_address())
+    light::LightState::dump_config();
 }
 
 void LivingColors1Light::setup_state(light::LightState *state) {
@@ -22,9 +36,83 @@ void LivingColors1Light::setup_state(light::LightState *state) {
   // Per light, not static: add_effects() keeps the pointer and the effect must not be shared
   auto **effects = new light::LightEffect *[1]{new LivingColors1CycleLightEffect()};
   state_->add_effects(effects, 1);
+
+  // Without address in the YAML, use the stored one; hide the light until it's paired
+  if (!this->has_address_) {
+    this->pairable_ = true;
+    this->address_pref_ =
+        global_preferences->make_preference<uint64_t>(this->address_key_ ^ ADDRESS_PREFERENCE_VERSION, true);
+    uint64_t address;
+    // 0 is stored when the lamp was unpaired
+    if (this->address_pref_.load(&address) && address != 0)
+      this->set_address(address);
+    else
+      state->set_internal(true);
+  }
+}
+
+bool LivingColors1Light::store_address(uint64_t address) {
+  if (!this->pairable_ || this->has_address_)
+    return false;
+  if (!this->address_pref_.save(&address) || !global_preferences->sync()) {
+    ESP_LOGE(TAG, "Failed to store address 0x%016" PRIX64, address);
+    return false;
+  }
+  this->set_address(address);
+  return true;
+}
+
+bool LivingColors1Light::replace_address(uint64_t address) {
+  // Same lamp ID, the upper 4 bytes; only for a stored address, one in the YAML can't be changed
+  if (!this->pairable_ || !this->has_address_ || (this->address_ >> 32) != (address >> 32))
+    return false;
+  if (!this->address_pref_.save(&address) || !global_preferences->sync()) {
+    ESP_LOGE(TAG, "Failed to store address 0x%016" PRIX64, address);
+    return false;
+  }
+  // The light is shown already, so no reboot is needed
+  ESP_LOGI(TAG, "Replaced 0x%016" PRIX64 " with 0x%016" PRIX64, this->address_, address);
+  this->set_address(address);
+  return true;
+}
+
+void LivingColors1Light::unpair(uint32_t remote_id) {
+  // Lamps paired with a remote control aren't owned by the ESP
+  if (!this->has_address_ || uint32_t(this->address_) != remote_id)
+    return;
+  ESP_LOGD(TAG, "Unpairing request to 0x%016" PRIX64, this->address_);
+  uint8_t data[5] = {(uint8_t) Command::UNPAIRING_REQUEST, 0x00, 0x00, 0x00, 0x00};
+  this->send(data, 5);
+}
+
+void LivingColors1Light::forget_address_() {
+  if (!this->pairable_) {
+    // The address is in the YAML, so the light stays
+    ESP_LOGI(TAG, "Unpaired 0x%016" PRIX64 ", remove the light from the YAML", this->address_);
+    return;
+  }
+  // Without address nothing is sent, also not the state reset below
+  this->has_address_ = false;
+  // An unpaired lamp is off, and so is a lamp after pairing; don't restore the old state on re-pairing
+  auto call = this->state_->turn_off();
+  call.set_rgb(1.0f, 1.0f, 1.0f);
+  call.set_brightness(1.0f);
+  call.set_save(true);
+  call.perform();
+  uint64_t none = 0;
+  if (!this->address_pref_.save(&none) || !global_preferences->sync()) {
+    // Keep the light working, it's still stored
+    this->has_address_ = true;
+    ESP_LOGE(TAG, "Failed to forget address 0x%016" PRIX64, this->address_);
+    return;
+  }
+  ESP_LOGI(TAG, "Unpaired 0x%016" PRIX64 ", rebooting", this->address_);
+  this->parent_->schedule_reboot();
 }
 
 void LivingColors1Light::write_state(light::LightState *state) {
+  if (!this->has_address_)
+    return;
   if (this->receive_ == true) {
     ESP_LOGV(TAG, "Receive mode, don't write state to light");
     this->receive_ = false;
@@ -77,7 +165,7 @@ void LivingColors1Light::write_state(light::LightState *state) {
 }
 
 bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length) {
-  if (length != 5)
+  if (!this->has_address_ || length != 5)
     return false;
 
   // Command
@@ -97,7 +185,13 @@ bool LivingColors1Light::receive(uint64_t address, uint8_t *data, uint8_t length
     ESP_LOGD(TAG, "Color cycling request");
   else if (this->is_special_(address) && command == Command::CYCLE_SYNC)
     ESP_LOGD(TAG, "Color cycling sync");
-  else if (this->is_response_(address)) {
+  else if (this->is_address_(address) && command == Command::UNPAIRING_REQUEST) {
+    ESP_LOGI(TAG, "Unpairing request for 0x%016" PRIX64, this->address_);
+    return true;
+  } else if (this->is_response_(address) && command == Command::ACK_UNPAIRING) {
+    this->forget_address_();
+    return true;
+  } else if (this->is_response_(address)) {
     ESP_LOGD(TAG, "Response");
     ESP_LOGD(TAG, "Command : 0x%02X", (uint8_t) command);
   } else if (!this->is_address_(address))
@@ -217,6 +311,10 @@ void LivingColors1CycleLightEffect::apply() {
 void LivingColors1CycleLightEffect::stop() {
   ESP_LOGV(TAG, "LivingColors1CycleLightEffect::stop");
   LivingColors1Light *output = (LivingColors1Light *) this->state_->get_output();
+  this->applied_ = false;
+  // Stopped by unpairing, the lamp no longer listens
+  if (!output->has_address())
+    return;
   uint8_t data[5];
 
   // Command
@@ -228,7 +326,6 @@ void LivingColors1CycleLightEffect::stop() {
   data[4] = 0x00;
 
   output->send(&data[0], 5);
-  this->applied_ = false;
 }
 
 }  // namespace livingcolors1
